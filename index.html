@@ -118,8 +118,18 @@
             <template x-for="(field, fKey) in pItem.fields" :key="fKey">
               <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
-                <input type="text" x-model="field.value" :placeholder="field.placeholder"
-                       class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                <template x-if="field.options">
+                  <select x-model="field.value" class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                    <option value="" disabled selected>Pilih...</option>
+                    <template x-for="opt in field.options" :key="opt">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                </template>
+                <template x-if="!field.options">
+                  <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                         class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                </template>
               </div>
             </template>
           </div>
@@ -188,8 +198,18 @@
                   <template x-for="(field, fKey) in bItem.fields" :key="fKey">
                     <div>
                       <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
-                      <input type="text" x-model="field.value" :placeholder="field.placeholder"
-                             class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                      <template x-if="field.options">
+                        <select x-model="field.value" class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                          <option value="" disabled selected>Pilih...</option>
+                          <template x-for="opt in field.options" :key="opt">
+                            <option :value="opt" x-text="opt"></option>
+                          </template>
+                        </select>
+                      </template>
+                      <template x-if="!field.options">
+                        <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                               class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                      </template>
                     </div>
                   </template>
                 </div>
@@ -268,8 +288,18 @@
                   <template x-for="(field, fKey) in pItem.fields" :key="fKey">
                     <div>
                       <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
-                      <input type="text" x-model="field.value" :placeholder="field.placeholder"
-                             class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                      <template x-if="field.options">
+                        <select x-model="field.value" class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                          <option value="" disabled selected>Pilih...</option>
+                          <template x-for="opt in field.options" :key="opt">
+                            <option :value="opt" x-text="opt"></option>
+                          </template>
+                        </select>
+                      </template>
+                      <template x-if="!field.options">
+                        <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                               class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                      </template>
                     </div>
                   </template>
                 </div>
@@ -540,57 +570,76 @@
           {
             type: "prompt",
             name: "Prompt Audit Google Business Profile",
-            guide: "Evaluasi dan optimasi profil Google Business kamu secara mandiri. Aku sarankan copas prompt ini ke chatgpt untuk hasil yang lebih akurat.",
+            guide: "Audit mandiri profil Google Business kamu. Isi semua data agar AI menghasilkan checklist, scoring, dan rekomendasi perbaikan yang spesifik.",
             fields: {
               namaBisnis: { label: "Nama Bisnis", placeholder: "misal: Dapur Mama Catering", value: "" },
-              kategori: { label: "Kategori Bisnis", placeholder: "misal: Katering", value: "" },
-              lokasi: { label: "Lokasi", placeholder: "misal: Jakarta Selatan", value: "" }
+              kategori: { label: "Kategori Bisnis (di GBP)", placeholder: "misal: Katering, Restoran, Toko Roti", value: "" },
+              lokasi: { label: "Kota / Area Layanan", placeholder: "misal: Jakarta Selatan", value: "" },
+              jamOperasional: { label: "Jam Operasional", placeholder: "misal: Senin-Sabtu 08:00-17:00", value: "" },
+              jumlahFoto: { label: "Jumlah Foto di Profil", placeholder: "misal: 5 foto", value: "" },
+              jumlahReview: { label: "Jumlah Review", placeholder: "misal: 12 review", value: "" },
+              ratingRataRata: { label: "Rating Rata-rata", placeholder: "misal: 4.5 bintang", value: "" },
+              deskripsiSaatIni: { label: "Deskripsi Profil Saat Ini (jika ada)", placeholder: "misal: Katering sehat untuk kantor", value: "" }
             },
-            template: "Nama bisnis saya adalah {namaBisnis}, kategori {kategori}, berlokasi di {lokasi}. Bantu saya melakukan self-audit Google Business Profile:\n1. Checklist kelengkapan profil (nama, alamat, jam operasional, foto, deskripsi)\n2. Kata kunci yang harus ada di deskripsi\n3. Strategi mendapatkan review positif\n4. Cara merespons review negatif\n5. Postingan GBP yang efektif untuk menarik pelanggan lokal."
+            template: "Saya memiliki bisnis Google Business Profile dengan data berikut:\n- Nama bisnis: {namaBisnis}\n- Kategori: {kategori}\n- Lokasi/area layanan: {lokasi}\n- Jam operasional: {jamOperasional}\n- Jumlah foto di profil: {jumlahFoto}\n- Jumlah review: {jumlahReview}\n- Rating rata-rata: {ratingRataRata}\n- Deskripsi profil saat ini: {deskripsiSaatIni}\n\nBantu saya melakukan self-audit Google Business Profile dengan format berikut:\n\n1. CHECKLIST KELENGKAPAN (beri skor 0/1 per item):\n   - Nama bisnis sesuai nama resmi\n   - Kategori utama tepat dan spesifik\n   - Alamat / area layanan lengkap\n   - Nomor telepon aktif\n   - Website / link booking\n   - Jam operasional terisi dan akurat\n   - Deskripsi bisnis (min 250 karakter, mengandung kata kunci)\n   - Minimal 10 foto (logo, cover, produk, interior, tim)\n   - Atribut bisnis (pembayaran, aksesibilitas, dll)\n   - Produk/layanan terdaftar\n\n2. SKOR TOTAL (X/10) dan kategori: Lemah / Cukup / Baik / Excellent\n\n3. EVALUASI PER ASPEK (beri penilaian dan rekomendasi):\n   - Visibilitas (apakah mudah ditemukan di pencarian lokal?)\n   - Kepercayaan (apakah profil terlihat profesional dan terpercaya?)\n   - Konversi (apakah profil mendorong pelanggan untuk menghubungi/memesan?)\n\n4. REKOMENDASI PRIORITAS (urutkan dari yang paling penting):\n   - 3 tindakan segera (minggu ini)\n   - 3 tindakan jangka pendek (bulan ini)\n   - 3 tindakan jangka panjang (3 bulan ke depan)\n\n5. TEMPLATE DESKRIPSI SEO (tulis ulang deskripsi profil yang optimal, max 750 karakter, mengandung kata kunci lokal)\n\n6. STRATEGI REVIEW (cara mendapatkan 5 review positif dalam 2 minggu)\n\n7. IDE POSTINGAN GBP (5 ide postingan yang bisa langsung dibuat)"
           },
           {
             type: "prompt",
             name: "Prompt Foto Produk Profesional",
-            guide: "Buat foto produk terlihat profesional tanpa studio mahal.",
+            guide: "Rencana foto produk profesional dengan peralatan yang kamu miliki. Isi detail agar AI memberikan panduan yang realistis dan actionable.",
             fields: {
-              produk: { label: "Produk", placeholder: "misal: Nasi Box", value: "" },
-              platform: { label: "Platform Posting", placeholder: "misal: Instagram, WhatsApp", value: "" },
-              gayaFoto: { label: "Gaya Foto", placeholder: "misal: Minimalis, rustic, modern", value: "" }
+              produk: { label: "Produk yang Difoto", placeholder: "misal: Nasi Box, Kue Tart, Paket Sembako", value: "" },
+              platform: { label: "Platform Posting", placeholder: "misal: Instagram Feed, WhatsApp Status, TikTok", value: "", options: ["Instagram Feed", "Instagram Stories", "WhatsApp Status", "TikTok", "Facebook", "Marketplace"] },
+              gaya: { label: "Gaya Foto", placeholder: "", value: "", options: ["Minimalis", "Vintage", "Modern", "Rustic", "Aesthetic", "Bold", "Clean", "Moody"] },
+              pencahayaan: { label: "Pencahayaan", placeholder: "", value: "", options: ["Natural (cahaya matahari)", "Studio (lampu buatan)", "Dramatic (kontras tinggi)", "Soft (lembut)", "Warm (hangat)", "Cool (dingin)"] },
+              background: { label: "Background", placeholder: "", value: "", options: ["Putih bersih", "Gradient warna", "Tekstur (kayu/marmer)", "Outdoor/alam", "Warna solid", "Transparan"] },
+              sudut: { label: "Sudut Foto", placeholder: "", value: "", options: ["Flat lay (dari atas)", "Eye level (sejajar)", "45 derajat", "Close-up (detail)", "Wide angle (luas)", "Macro (sangat dekat)"] },
+              suasana: { label: "Suasana/Mood", placeholder: "", value: "", options: ["Mewah", "Casual", "Clean", "Elegan", "Fun", "Profesional", "Homey"] }
             },
-            template: "Produk saya adalah {produk}, akan diposting di {platform}. Gaya foto yang diinginkan: {gayaFoto}. Bantu saya membuat foto produk terlihat profesional:\n1. Setup pencahayaan sederhana (natural light / lampu rumah)\n2. Komposisi dan sudut pengambilan gambar\n3. Background dan props yang sesuai\n4. Edit foto dengan aplikasi gratis (Snapseed/Canva)\n5. Template caption yang menjual untuk setiap foto."
+             template: "Saya punya foto produk biasa (terlampir). Tolong buat foto produk ini terlihat lebih menarik, creative, dan enak dilihat dengan gaya berikut:\n- Produk: {produk}\n- Platform posting: {platform}\n- Gaya foto: {gaya}\n- Pencahayaan: {pencahayaan}\n- Background: {background}\n- Sudut foto: {sudut}\n- Suasana/mood: {suasana}\n\nTransformasikan foto produk yang saya lampirkan agar:\n1. Produk terlihat lebih menonjol dan profesional\n2. Pencahayaan membuat produk terlihat segar dan menarik\n3. Background mendukung produk tanpa mengganggu\n4. Komposisi dan sudut foto membuat produk terlihat premium\n5. Suasana/mood sesuai dengan gaya yang dipilih\n6. Hasil akhir terlihat seperti foto studio yang creative dan enak dilihat\n\nBerikan juga saran singkat (2-3 kalimat) tentang kenapa transformasi ini membuat produk lebih menarik untuk pembeli."
           },
           {
             type: "prompt",
             name: "Prompt Desain Event Launching Produk",
-            guide: "Rancang event launching produk yang menarik.",
+            guide: "Rancang event launching produk dari konsep hingga follow-up. Isi detail agar AI menghasilkan timeline dan strategi yang realistis.",
             fields: {
-              produk: { label: "Produk yang Diluncurkan", placeholder: "misal: Menu Baru Paket Hemat", value: "" },
+              produk: { label: "Produk yang Diluncurkan", placeholder: "misal: Menu Baru Paket Hemat, Produk Skincare", value: "" },
               tanggalLaunch: { label: "Tanggal Launching", placeholder: "misal: 15 Maret 2026", value: "" },
-              targetAudience: { label: "Target Audience", placeholder: "misal: Pekerja kantor area Sudirman", value: "" }
+              targetAudience: { label: "Target Audience", placeholder: "misal: Pekerja kantor area Sudirman", value: "" },
+              budget: { label: "Budget Event", placeholder: "misal: Rp 500.000, Rp 0 (online only)", value: "" },
+              channel: { label: "Channel Promosi", placeholder: "misal: Instagram, WhatsApp, TikTok, offline", value: "" },
+              tujuanEvent: { label: "Tujuan Event", placeholder: "misal: Penjualan, brand awareness, dapat testimoni", value: "" }
             },
-            template: "Saya akan meluncurkan produk {produk} pada {tanggalLaunch}. Target audience: {targetAudience}. Bantu saya merancang event launching:\n1. Konsep dan tema event\n2. Timeline persiapan (H-30, H-7, H-1, H-day)\n3. Strategi promosi pre-event dan during event\n4. Aktivitas interaktif untuk peserta\n5. Follow-up pasca event untuk konversi penjualan."
+            template: "Saya akan meluncurkan produk dengan detail berikut:\n- Produk: {produk}\n- Tanggal launching: {tanggalLaunch}\n- Target audience: {targetAudience}\n- Budget event: {budget}\n- Channel promosi: {channel}\n- Tujuan event: {tujuanEvent}\n\nBantu saya merancang event launching dengan format berikut:\n\n1. KONSEP & TEMA:\n   - Nama event (catchy, mudah diingat)\n   - Tema visual (warna, dekorasi, dress code)\n   - Value proposition utama\n\n2. TIMELINE PERSIAPAN:\n   - H-30: Perencanaan dan budgeting\n   - H-14: Produksi konten dan undangan\n   - H-7: Teaser dan konfirmasi peserta\n   - H-3: Final check dan reminder\n   - H-1: Setup dan rehearsal\n   - H-day: Eksekusi\n   - H+1 to H+7: Follow-up\n\n3. STRATEGI PROMOSI:\n   - Pre-event (teaser, countdown, early bird)\n   - During event (live, stories, hashtag)\n   - Post-event (recap, testimoni, thank you)\n   - Alokasi budget per channel\n\n4. AKTIVITAS INTERAKTIF:\n   - Ice breaker (5 menit)\n   - Product demo / sampling\n   - Q&A session\n   - Giveaway / lucky draw\n   - Photo booth / UGC moment\n\n5. FOLLOW-UP PASCA EVENT:\n   - Template pesan thank you\n   - Cara konversi peserta jadi pembeli\n   - Strategi testimoni dan review\n   - Retargeting untuk yang belum beli\n\n6. METRIK KEBERHASILAN:\n   - Jumlah peserta\n   - Engagement rate\n   - Konversi penjualan\n   - Cost per acquisition\n   - NPS (Net Promoter Score)"
           },
           {
             type: "prompt",
             name: "Prompt Content Plan 30 Hari",
-            guide: "Susun jadwal konten sebulan penuh agar lebih efisien.",
+            guide: "Susun jadwal konten sebulan penuh yang terstruktur. Isi detail agar AI menghasilkan kalender konten yang realistis.",
             fields: {
-              jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
-              platform: { label: "Platform", placeholder: "misal: Instagram, TikTok", value: "" },
-              tujuanKonten: { label: "Tujuan Konten", placeholder: "misal: Meningkatkan penjualan, brand awareness", value: "" }
+              jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian, Toko Roti", value: "" },
+              platform: { label: "Platform Utama", placeholder: "misal: Instagram, TikTok, Facebook", value: "" },
+              tujuanKonten: { label: "Tujuan Konten", placeholder: "misal: Meningkatkan penjualan, brand awareness", value: "" },
+              frekuensiPosting: { label: "Frekuensi Posting", placeholder: "misal: 1x sehari, 3x seminggu", value: "" },
+              targetAudience: { label: "Target Audience", placeholder: "misal: Ibu rumah tangga, pekerja kantor", value: "" },
+              jamPosting: { label: "Jam Posting Optimal (jika tahu)", placeholder: "misal: 07:00, 12:00, 19:00", value: "" }
             },
-            template: "Usaha saya adalah {jenisUsaha}, posting di {platform}. Tujuan konten: {tujuanKonten}. Bantu saya menyusun content plan 30 hari:\n1. Breakdown tema mingguan (4 minggu)\n2. Jenis konten per hari (edukasi, promo, behind the scene, testimoni)\n3. Template caption untuk setiap jenis konten\n4. Hashtag strategy yang relevan\n5. Metrik evaluasi performa konten."
+            template: "Saya memiliki usaha dengan detail berikut:\n- Jenis usaha: {jenisUsaha}\n- Platform: {platform}\n- Tujuan konten: {tujuanKonten}\n- Frekuensi posting: {frekuensiPosting}\n- Target audience: {targetAudience}\n- Jam posting optimal: {jamPosting}\n\nBantu saya menyusun content plan 30 hari dengan format berikut:\n\n1. BREAKDOWN TEMA MINGGUAN:\n   - Minggu 1: Awareness (kenalan dengan brand)\n   - Minggu 2: Edukasi (tips, manfaat, behind the scene)\n   - Minggu 3: Engagement (interaksi, polling, UGC)\n   - Minggu 4: Konversi (promo, testimoni, CTA)\n\n2. KALENDER KONTEN 30 HARI (tabel: Hari | Tanggal | Jenis Konten | Tema | Caption Singkat | Hashtag)\n\n3. JENIS KONTEN PER HARI:\n   - Senin: Edukasi (tips/carousel)\n   - Selasa: Behind the scene (video/stories)\n   - Rabu: Promo/produk (feed)\n   - Kamis: Testimoni/UGC (repost)\n   - Jumat: Engagement (polling/Q&A)\n   - Sabtu: Lifestyle (relatable content)\n   - Minggu: Recap/highlight (stories)\n\n4. TEMPLATE CAPTION (5 template yang bisa langsung dipakai):\n   - Template edukasi\n   - Template promo\n   - Template testimoni\n   - Template behind the scene\n   - Template engagement\n\n5. HASHTAG STRATEGY:\n   - 3 hashtag brand (konsisten)\n   - 5 hashtag niche (spesifik)\n   - 5 hashtag lokal (kota/area)\n   - 3 hashtag trending (rotasi)\n\n6. METRIK EVALUASI (apa yang diukur setiap minggu):\n   - Reach & impressions\n   - Engagement rate\n   - Follower growth\n   - Click-through rate\n   - Konversi (DM/pesan masuk)"
           },
           {
             type: "prompt",
             name: "Prompt Growth Akun Medsos 30 Hari",
-            guide: "Strategi pertumbuhan akun media sosial dalam 30 hari.",
+            guide: "Strategi pertumbuhan akun media sosial yang realistis. Isi detail agar AI menghasilkan rencana yang actionable.",
             fields: {
               akunMedsos: { label: "Akun Media Sosial", placeholder: "misal: @dapurmama.id", value: "" },
-              niche: { label: "Niche / Bidang", placeholder: "misal: Katering sehat", value: "" },
-              followerSaatIni: { label: "Follower Saat Ini", placeholder: "misal: 500", value: "" }
+              niche: { label: "Niche / Bidang", placeholder: "misal: Katering sehat, Toko roti rumahan", value: "" },
+              platform: { label: "Platform Utama", placeholder: "misal: Instagram, TikTok", value: "" },
+              followerSaatIni: { label: "Follower Saat Ini", placeholder: "misal: 500", value: "" },
+              targetFollower: { label: "Target Follower (30 hari)", placeholder: "misal: 1.000", value: "" },
+              budget: { label: "Budget Iklan (jika ada)", placeholder: "misal: Rp 0, Rp 200.000", value: "" },
+              waktuLuang: { label: "Waktu yang Bisa Dicurahkan", placeholder: "misal: 1 jam/hari, 3 jam/minggu", value: "" }
             },
-            template: "Akun media sosial saya adalah {akunMedsos} di niche {niche}. Follower saat ini: {followerSaatIni}. Bantu saya menyusun strategi growth 30 hari:\n1. Optimasi profil (bio, foto, highlight)\n2. Strategi konten yang menarik follower baru\n3. Teknik engagement (komentar, DM, kolaborasi)\n4. Jadwal posting optimal\n5. Target follower realistis dan cara mengukurnya."
+            template: "Akun media sosial saya dengan detail berikut:\n- Akun: {akunMedsos}\n- Niche: {niche}\n- Platform: {platform}\n- Follower saat ini: {followerSaatIni}\n- Target follower 30 hari: {targetFollower}\n- Budget iklan: {budget}\n- Waktu yang bisa dicurahkan: {waktuLuang}\n\nBantu saya menyusun strategi growth 30 hari dengan format berikut:\n\n1. OPTIMASI PROFIL (checklist):\n   - Username yang mudah dicari\n   - Bio yang jelas (siapa, apa, untuk siapa, CTA)\n   - Foto profil profesional\n   - Highlight stories (minimal 3: Produk, Testimoni, FAQ)\n   - Link di bio (WhatsApp / linktree)\n\n2. STRATEGI KONTEN (untuk menarik follower baru):\n   - 3 jenis konten yang paling efektif untuk niche ini\n   - Format yang diprioritaskan (Reels/TikTok > Carousel > Static)\n   - Hook (kalimat pembuka) yang menarik perhatian\n   - CTA yang mendorong follow\n\n3. TEKNIK ENGAGEMENT (untuk meningkatkan interaksi):\n   - Cara merespons komentar (template respons)\n   - Strategi DM (welcome message, follow-up)\n   - Kolaborasi dengan akun sejenis (cara approach)\n   - Engagement dengan akun target (komentar bermakna)\n\n4. JADWAL POSTING:\n   - Hari dan jam optimal (berdasarkan niche)\n   - Frekuensi per minggu\n   - Rasio konten (edukasi : promo : engagement : behind the scene)\n\n5. TARGET MINGGUAN:\n   - Minggu 1: X follower (fokus optimasi profil)\n   - Minggu 2: X follower (fokus konten viral)\n   - Minggu 3: X follower (fokus engagement)\n   - Minggu 4: X follower (fokus konversi)\n\n6. METRIK YANG DIUKUR:\n   - Follower growth rate\n   - Engagement rate\n   - Reach per post\n   - Profile visits\n   - Website/DM clicks\n\n7. RED FLAGS (hal yang harus dihindari):\n   - Beli follower\n   - Follow-unfollow massal\n   - Konten yang tidak relevan\n   - Spam hashtag"
           },
           {
             type: "link",
