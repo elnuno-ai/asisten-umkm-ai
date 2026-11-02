@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asisten Bisnis UMKM AI</title>
+  <!-- Framework Tailwind CSS & Alpine.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>[x-cloak] { display: none !important; }</style>
+  <!-- Google Analytics (ganti G-XXXXXXXXXX dengan Measurement ID asli) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col" x-data="appData()" x-init="initApp()">
+
+  <!-- HEADER / NAVBAR -->
+  <header class="bg-indigo-700 text-white p-4 shadow-md sticky top-0 z-50">
+    <div class="max-w-3xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-brain text-yellow-300 text-xl"></i>
+        <h1 class="font-bold text-base sm:text-lg leading-tight">Asisten UMKM AI</h1>
+      </div>
+      <!-- Status Lisensi -->
+      <button @click="showUnlockModal = true" class="text-xs px-3 py-1 rounded-full border transition font-medium"
+              :class="isPremium ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-indigo-800 border-indigo-500 text-indigo-100 hover:bg-indigo-900'">
+        <i :class="isPremium ? 'fa-solid fa-circle-check' : 'fa-solid fa-lock'"></i>
+        <span x-text="isPremium ? 'Akses Premium Aktif' : 'Versi Gratis (Buka Premium)'"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- NAVIGASI TAB UTAMA -->
+  <nav class="bg-white border-b border-slate-200 sticky top-[57px] z-40 shadow-sm">
+    <div class="max-w-3xl mx-auto flex overflow-x-auto p-2 space-x-2 no-scrollbar">
+      <button @click="switchTab('prompts')"
+              :class="activeTab === 'prompts' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+              class="px-4 py-2 rounded-lg text-xs whitespace-nowrap transition flex items-center space-x-1.5">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>Prompt Bab 1-5</span>
+      </button>
+
+      <button @click="switchTab('bonus')"
+              :class="activeTab === 'bonus' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+              class="px-4 py-2 rounded-lg text-xs whitespace-nowrap transition flex items-center space-x-1.5">
+        <i class="fa-solid fa-gift"></i>
+        <span>Bonus & Tools</span>
+      </button>
+
+      <button @click="switchTab('premium')"
+              :class="activeTab === 'premium' ? 'bg-amber-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+              class="px-4 py-2 rounded-lg text-xs whitespace-nowrap transition flex items-center space-x-1.5">
+        <i :class="isPremium ? 'fa-solid fa-crown' : 'fa-solid fa-lock'"></i>
+        <span>Premium</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- KONTEN UTAMA -->
+  <main class="max-w-3xl mx-auto w-full p-4 flex-grow space-y-6">
+
+    <!-- TAB 1: PROMPT BAB 1 - BAB 5 -->
+    <div x-show="activeTab === 'prompts'" class="space-y-6">
+
+      <!-- Cara Pakai (collapsible) -->
+      <div class="bg-indigo-50 border border-indigo-200 rounded-lg overflow-hidden">
+        <button @click="toggleCaraPakai()" class="w-full flex justify-between items-center p-3 text-left">
+          <span class="font-bold text-indigo-900 text-sm flex items-center space-x-1.5">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Cara Pakai</span>
+          </span>
+          <i :class="caraPakaiOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="text-indigo-600 text-xs"></i>
+        </button>
+        <div x-show="caraPakaiOpen" x-transition class="px-3 pb-3 space-y-1.5">
+          <ol class="text-xs text-indigo-700 space-y-1 list-decimal list-inside">
+            <li>Isi form sesuai usahamu</li>
+            <li>Klik <strong>Salin Prompt</strong></li>
+            <li>Paste prompt ke AI (ChatGPT / Claude / Gemini)</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Selector Bab -->
+      <div class="flex space-x-2 overflow-x-auto pb-1">
+        <template x-for="(bab, index) in daftarBab" :key="index">
+          <button @click="activeBab = index"
+                  :class="activeBab === index ? 'bg-slate-900 text-white font-bold' : 'bg-white text-slate-700 border border-slate-200'"
+                  class="px-3 py-1.5 rounded-md text-xs whitespace-nowrap shadow-sm">
+            <span x-text="bab.title"></span>
+          </button>
+        </template>
+      </div>
+
+      <!-- Banner Bab -->
+      <div class="bg-indigo-50 border-l-4 border-indigo-600 p-3.5 rounded-r-lg">
+        <h2 class="font-bold text-indigo-900 text-sm" x-text="daftarBab[activeBab].title"></h2>
+        <p class="text-xs text-indigo-700 mt-0.5" x-text="daftarBab[activeBab].desc"></p>
+      </div>
+
+      <!-- Kartu Prompt -->
+      <template x-for="(pItem, pIdx) in daftarBab[activeBab].prompts" :key="pIdx">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm" x-text="pItem.name"></h3>
+              <p class="text-xs text-slate-500 mt-0.5" x-text="pItem.guide"></p>
+            </div>
+          </div>
+
+          <!-- Form Isian Kustom -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
+            <template x-for="(field, fKey) in pItem.fields" :key="fKey">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
+                <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                       class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+              </div>
+            </template>
+          </div>
+
+          <!-- Preview & Copas Button -->
+          <div class="relative">
+            <div class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto"
+                 x-text="buildPrompt(pItem)"></div>
+
+            <div class="mt-2.5 flex space-x-2">
+              <button @click="handleCopyPrompt(pItem, pIdx)"
+                      :class="copiedPromptIdx === pIdx ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'"
+                      class="flex-1 px-4 py-2 text-white text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5">
+                <i :class="copiedPromptIdx === pIdx ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
+                <span x-text="copiedPromptIdx === pIdx ? 'Berhasil Disalin!' : 'Salin Prompt'"></span>
+              </button>
+              <button @click="resetFields(pItem)"
+                      class="px-3 py-2 text-slate-600 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition">
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- TAB 2: BONUS & TOOLS -->
+    <div x-show="activeTab === 'bonus'" class="space-y-4">
+      <div class="bg-amber-50 border-l-4 border-amber-500 p-3.5 rounded-r-lg">
+        <h2 class="font-bold text-amber-900 text-sm">Hub Bonus & Tools Operasional</h2>
+        <p class="text-xs text-amber-700 mt-0.5">Semua template, kalkulator, dan checklist pendukung usaha kamu.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <template x-for="(bItem, bIdx) in bonusList" :key="bIdx">
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
+
+            <!-- Link type -->
+            <template x-if="bItem.type === 'link'">
+              <div class="flex flex-col justify-between h-full space-y-3">
+                <div class="flex items-start space-x-3">
+                  <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg shrink-0">
+                    <i :class="bItem.icon"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-slate-900 text-xs" x-text="bItem.title"></h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5" x-text="bItem.desc"></p>
+                  </div>
+                </div>
+                <button @click="handleBonusLinkClick(bItem)"
+                        class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  <span>Akses Tool Sekarang</span>
+                </button>
+              </div>
+            </template>
+
+            <!-- Prompt type -->
+            <template x-if="bItem.type === 'prompt'">
+              <div class="space-y-3">
+                <div>
+                  <h3 class="font-bold text-slate-900 text-sm" x-text="bItem.title"></h3>
+                  <p class="text-xs text-slate-500 mt-0.5" x-text="bItem.guide"></p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                  <template x-for="(field, fKey) in bItem.fields" :key="fKey">
+                    <div>
+                      <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
+                      <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                             class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                    </div>
+                  </template>
+                </div>
+                <div class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto"
+                     x-text="buildPrompt(bItem)"></div>
+                <div class="flex space-x-2">
+                  <button @click="handleCopyPrompt(bItem, bIdx)"
+                          :class="copiedPromptIdx === bIdx ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'"
+                          class="flex-1 px-4 py-2 text-white text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5">
+                    <i :class="copiedPromptIdx === bIdx ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
+                    <span x-text="copiedPromptIdx === bIdx ? 'Berhasil Disalin!' : 'Salin Prompt'"></span>
+                  </button>
+                  <button @click="resetFields(bItem)"
+                          class="px-3 py-2 text-slate-600 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition">
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- TAB 3: PREMIUM -->
+    <div x-show="activeTab === 'premium'" class="space-y-4">
+      <div class="bg-amber-50 border-l-4 border-amber-500 p-3.5 rounded-r-lg">
+        <h2 class="font-bold text-amber-900 text-sm flex items-center space-x-1.5">
+          <i class="fa-solid fa-crown"></i>
+          <span>Fitur Premium</span>
+        </h2>
+        <p class="text-xs text-amber-700 mt-0.5" x-text="isPremium ? 'Semua fitur premium telah terbuka. Selamat menggunakan!' : 'Masukkan kode aktivasi untuk membuka semua fitur premium.'"></p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <template x-for="(pItem, pIdx) in premiumList" :key="pIdx">
+          <div class="relative bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
+
+            <!-- Lock overlay when not premium -->
+            <div x-show="!isPremium" @click="showUnlockModal = true"
+                 class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm rounded-xl flex items-center justify-center z-10 cursor-pointer">
+              <div class="text-center">
+                <i class="fa-solid fa-lock text-white text-2xl"></i>
+                <p class="text-white text-xs mt-1 font-bold">Premium</p>
+              </div>
+            </div>
+
+            <!-- Link type -->
+            <template x-if="pItem.type === 'link'">
+              <div class="flex flex-col justify-between h-full space-y-3">
+                <div class="flex items-start space-x-3">
+                  <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0">
+                    <i :class="pItem.icon"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-slate-900 text-xs" x-text="pItem.title"></h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5" x-text="pItem.desc"></p>
+                  </div>
+                </div>
+                <button @click="handlePremiumLinkClick(pItem)"
+                        class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-amber-600 hover:bg-amber-700 text-white">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  <span>Akses Tool Sekarang</span>
+                </button>
+              </div>
+            </template>
+
+            <!-- Prompt type -->
+            <template x-if="pItem.type === 'prompt'">
+              <div class="space-y-3">
+                <div>
+                  <h3 class="font-bold text-slate-900 text-sm" x-text="pItem.name"></h3>
+                  <p class="text-xs text-slate-500 mt-0.5" x-text="pItem.guide"></p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                  <template x-for="(field, fKey) in pItem.fields" :key="fKey">
+                    <div>
+                      <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
+                      <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                             class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                    </div>
+                  </template>
+                </div>
+                <div class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto"
+                     x-text="buildPrompt(pItem)"></div>
+                <div class="flex space-x-2">
+                  <button @click="handlePremiumCopyPrompt(pItem, pIdx)"
+                          :class="copiedPromptIdx === pIdx ? 'bg-emerald-600' : 'bg-amber-600 hover:bg-amber-700'"
+                          class="flex-1 px-4 py-2 text-white text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5">
+                    <i :class="copiedPromptIdx === pIdx ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
+                    <span x-text="copiedPromptIdx === pIdx ? 'Berhasil Disalin!' : 'Salin Prompt'"></span>
+                  </button>
+                  <button @click="resetFields(pItem)"
+                          class="px-3 py-2 text-slate-600 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition">
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL POP-UP (KUNCI PREMIUM / MASUKKAN KODE) -->
+  <div x-show="showUnlockModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" x-cloak>
+    <div @click.away="showUnlockModal = false" class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4 text-center">
+      <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-key"></i>
+      </div>
+      
+      <div>
+        <h3 class="font-bold text-slate-900 text-base">Aktivasi Fitur Premium</h3>
+        <p class="text-xs text-slate-500 mt-1">Buka semua fitur premium dengan kode aktivasi.</p>
+      </div>
+
+      <!-- Harga -->
+      <div class="bg-amber-50 rounded-lg p-3 text-center">
+        <p class="text-[11px] text-amber-700 mb-1">Harga Premium</p>
+        <div class="flex items-center justify-center space-x-2">
+          <span class="text-xs text-slate-400 line-through">Rp 99.000,00</span>
+          <span class="text-lg font-bold text-amber-900">Rp 59.000,00</span>
+        </div>
+      </div>
+
+      <!-- Tombol Bayar -->
+      <button @click="window.open('https://lynk.id/dgtaliz', '_blank'); trackEvent('premium_payment_clicked', {})"
+              class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5">
+        <i class="fa-solid fa-credit-card"></i>
+        <span>Bayar Premium Sekarang</span>
+      </button>
+
+      <p class="text-[10px] text-slate-400 text-center">Setelah pembayaran, kamu akan menerima kode aktivasi. Masukkan kode di bawah.</p>
+
+      <!-- Premium feature list -->
+      <div class="bg-amber-50 rounded-lg p-3 text-left">
+        <p class="text-[11px] font-bold text-amber-900 mb-1.5">Yang akan kamu dapatkan:</p>
+        <ul class="text-[11px] text-amber-800 space-y-0.5 list-disc list-inside">
+          <li>Audit Google Business Profile</li>
+          <li>Prompt Foto Produk Profesional</li>
+          <li>Plan Event Launching Produk</li>
+          <li>Content Plan 30 Hari</li>
+          <li>Growth Akun Medsos 30 Hari</li>
+          <li>Link Pencatatan Keuangan Bisnis</li>
+          <li>Template Desain Bisnis Canva</li>
+        </ul>
+      </div>
+
+      <div class="space-y-2">
+        <input type="text" x-model="licenseInput" placeholder="Masukkan Kode Aktivasi..."
+               class="w-full text-center text-xs p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 uppercase font-mono font-bold">
+        <button @click="activateCode()" class="w-full bg-indigo-600 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-indigo-700 transition">
+          Verifikasi Kode
+        </button>
+      </div>
+
+      <button @click="showUnlockModal = false" class="text-xs text-slate-400 hover:text-slate-600 block w-full">
+        Tutup
+      </button>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIKA APP -->
+  <script>
+    function appData() {
+      return {
+        activeTab: 'prompts',
+        activeBab: 0,
+        isPremium: false,
+        showUnlockModal: false,
+        licenseInput: '',
+        copiedPromptIdx: null,
+        caraPakaiOpen: true,
+
+        // KODE AKTIVASI RAHASIA KAMU (Bisa kamu ganti sendiri)
+        SECRET_KEY: 'UMKM2026',
+
+        initApp() {
+          // Cek apakah browser sudah mengingat status pembayaran
+          if (localStorage.getItem('umkm_ai_premium') === 'true') {
+            this.isPremium = true;
+          }
+          // Cara Pakai: collapsed jika sudah pernah onboarded
+          if (localStorage.getItem('umkm_onboarded') === 'true') {
+            this.caraPakaiOpen = false;
+          }
+        },
+
+        switchTab(tab) {
+          this.activeTab = tab;
+          this.copiedPromptIdx = null;
+        },
+
+        toggleCaraPakai() {
+          this.caraPakaiOpen = !this.caraPakaiOpen;
+          if (!this.caraPakaiOpen) {
+            localStorage.setItem('umkm_onboarded', 'true');
+          }
+        },
+
+        daftarBab: [
+          {
+            title: "Bab 1: Riset Pasar",
+            desc: "Pahami siapa calon pembeli dan bukti lapangan sebelum berjualan.",
+            prompts: [
+              {
+                name: "Prompt Hipotesis & Profil Pasar",
+                guide: "Isi data usahamu untuk menggali profil calon pembeli.",
+                fields: {
+                  jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Kuliner Sarapan", value: "" },
+                  lokasi: { label: "Area / Lokasi", placeholder: "misal: Perumahan Sedhah Ayu", value: "" },
+                  target: { label: "Target Pembeli", placeholder: "misal: Pekerja kantor & Ibu rumah tangga", value: "" }
+                },
+                template: "Bantu saya memahami pasar untuk ide usaha {jenisUsaha} di {lokasi} dengan target {target}.\n1. Hipotesis awal kebutuhan mereka\n2. Profil calon pelanggan\n3. Daftar pertanyaan wawancara\n4. Hal yang perlu diobservasi\n5. Daftar pesaing lokal."
+              }
+            ]
+          },
+          {
+            title: "Bab 2: Needs & Wants",
+            desc: "Gali kebutuhan dasar dan preferensi spesifik pelanggan.",
+            prompts: [
+              {
+                name: "Prompt Pemeta Needs & Wants",
+                guide: "Membedakan apa yang mereka butuhkan vs apa yang mereka inginkan.",
+                fields: {
+                  jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
+                  produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" }
+                },
+                template: "Saya memiliki usaha {jenisUsaha} dengan produk {produk}. Bantu saya memahami kebutuhan dasar (needs) mereka dan preferensi spesifik (wants) yang penting saat memilih produk saya."
+              }
+            ]
+          },
+          {
+            title: "Bab 3: Keunggulan Kompetitif",
+            desc: "Temukan pembeda usahamu agar tidak sekadar perang harga.",
+            prompts: [
+              {
+                name: "Prompt Pembeda Usaha",
+                guide: "Temukan keunggulan kompetitif usahamu agar tidak sekadar perang harga.",
+                fields: {
+                  jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
+                  produkUnggulan: { label: "Produk/Layanan Unggulan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
+                  pesaingUtama: { label: "Pesaing Utama", placeholder: "misal: Katering sekitar kantor, warteg", value: "" }
+                },
+                template: "Saya memiliki usaha {jenisUsaha} dengan produk unggulan {produkUnggulan}. Pesaing utama saya adalah {pesaingUtama}. Bantu saya menemukan keunggulan kompetitif yang sulit ditiru pesaing:\n1. Analisis kekuatan dan kelemahan pesaing\n2. Identifikasi pembeda unik usaha saya\n3. Strategi positioning yang tepat\n4. Cara mengkomunikasikan keunggulan ke pelanggan\n5. Hal yang harus dihindari agar tidak sekadar perang harga."
+              }
+            ]
+          },
+          {
+            title: "Bab 4: Marketing Mix 4P",
+            desc: "Susun strategi produk, harga, tempat, dan promosi yang pas.",
+            prompts: [
+              {
+                name: "Prompt Strategi Produk",
+                guide: "Susun strategi produk yang tepat untuk usahamu.",
+                fields: {
+                  jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
+                  produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
+                  keunggulanProduk: { label: "Keunggulan Produk", placeholder: "misal: Sehat, higienis, tepat waktu", value: "" }
+                },
+                template: "Saya memiliki usaha {jenisUsaha} dengan produk {produk}. Keunggulan produk saya adalah {keunggulanProduk}. Bantu saya menyusun strategi produk:\n1. Fitur dan manfaat utama produk\n2. Kualitas dan standar yang harus dijaga\n3. Variasi atau lini produk yang bisa dikembangkan\n4. Packaging dan branding yang sesuai\n5. Siklus hidup produk dan rencana pengembangan."
+              },
+              {
+                name: "Prompt Strategi Harga",
+                guide: "Tentukan harga yang kompetitif dan menguntungkan.",
+                fields: {
+                  produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
+                  biayaProduksi: { label: "Biaya Produksi per Unit", placeholder: "misal: Rp 15.000", value: "" },
+                  targetMargin: { label: "Target Margin (%)", placeholder: "misal: 30", value: "" }
+                },
+                template: "Produk saya adalah {produk} dengan biaya produksi {biayaProduksi} per unit. Target margin keuntungan saya adalah {targetMargin}%. Bantu saya menyusun strategi harga:\n1. Perhitungan HPP yang akurat\n2. Analisis harga pesaing\n3. Strategi penetapan harga (cost-plus, value-based, competitive)\n4. Skema diskon dan promo yang tidak merugikan\n5. Kapan dan bagaimana menaikkan harga."
+              },
+              {
+                name: "Prompt Strategi Tempat / Distribusi",
+                guide: "Pilih channel penjualan yang paling efektif.",
+                fields: {
+                  produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
+                  lokasi: { label: "Lokasi Usaha", placeholder: "misal: Jakarta Selatan", value: "" },
+                  channelPenjualan: { label: "Channel Penjualan Saat Ini", placeholder: "misal: WhatsApp, Instagram, offline", value: "" }
+                },
+                template: "Produk saya adalah {produk}, berlokasi di {lokasi}. Channel penjualan saat ini: {channelPenjualan}. Bantu saya menyusun strategi tempat/distribusi:\n1. Evaluasi channel penjualan saat ini\n2. Channel baru yang potensial\n3. Strategi omnichannel (offline + online)\n4. Manajemen stok dan logistik\n5. Cara memperluas jangkauan tanpa menambah biaya besar."
+              },
+              {
+                name: "Prompt Strategi Promosi",
+                guide: "Rancang promosi yang efektif dengan budget terbatas.",
+                fields: {
+                  produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
+                  budgetPromo: { label: "Budget Promosi per Bulan", placeholder: "misal: Rp 500.000", value: "" },
+                  channelPromo: { label: "Channel Promosi", placeholder: "misal: Instagram, WhatsApp, TikTok", value: "" }
+                },
+                template: "Produk saya adalah {produk} dengan budget promosi {budgetPromo} per bulan. Channel promosi yang digunakan: {channelPromo}. Bantu saya menyusun strategi promosi:\n1. Pesan utama yang ingin disampaikan\n2. Alokasi budget per channel\n3. Kalender konten promosi 1 bulan\n4. Metrik keberhasilan promosi\n5. Promosi low-budget yang efektif untuk UMKM."
+              }
+            ]
+          },
+          {
+            title: "Bab 5: Customer Experience",
+            desc: "Kelola alur pesan, FAQ, dan respons komplain agar pelanggan kembali.",
+            prompts: [
+              {
+                name: "Prompt Alur Customer Experience",
+                guide: "Kelola alur pesan, FAQ, dan respons komplain agar pelanggan kembali.",
+                fields: {
+                  jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
+                  titikKontak: { label: "Titik Kontak Pelanggan", placeholder: "misal: WhatsApp, Instagram, telepon", value: "" },
+                  masalahUmum: { label: "Masalah yang Sering Muncul", placeholder: "misal: Pesanan terlambat, salah menu", value: "" }
+                },
+                template: "Usaha saya adalah {jenisUsaha}. Titik kontak dengan pelanggan: {titikKontak}. Masalah yang sering muncul: {masalahUmum}. Bantu saya menyusun strategi customer experience:\n1. Peta perjalanan pelanggan (customer journey map)\n2. Template respons untuk setiap titik kontak\n3. FAQ yang sering ditanyakan\n4. SOP penanganan komplain\n5. Strategi follow-up agar pelanggan kembali dan merekomendasikan."
+              }
+            ]
+          }
+        ],
+
+        bonusList: [
+          {
+            type: "link",
+            title: "Kalkulator HPP Otomatis",
+            desc: "Spreadsheet hitung harga pokok & margin.",
+            url: "https://docs.google.com/spreadsheets/d/1Tr5OZUHpvTD5iaAfIaovhFzQq4UlX1iE/edit?usp=sharing&ouid=100562355406787208229&rtpof=true&sd=true",
+            icon: "fa-solid fa-calculator"
+          },
+          {
+            type: "prompt",
+            title: "Prompt WA Customer Service",
+            guide: "Template respons WhatsApp untuk customer service.",
+            fields: {
+              jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
+              namaBrand: { label: "Nama Brand", placeholder: "misal: Dapur Mama", value: "" },
+              toneKomunikasi: { label: "Tone Komunikasi", placeholder: "misal: Ramah, profesional", value: "" }
+            },
+            template: "Usaha saya adalah {jenisUsaha} dengan brand {namaBrand}. Tone komunikasi yang diinginkan: {toneKomunikasi}. Bantu saya membuat template respons WhatsApp untuk customer service:\n1. Sambutan pembuka (greeting)\n2. Respons pertanyaan harga/produk\n3. Respons ketersediaan stok\n4. Respons cara pemesanan\n5. Respons komplain dan permintaan maaf\n6. Penutup dan follow-up."
+          },
+          {
+            type: "prompt",
+            title: "Prompt WA Marketing",
+            guide: "Template pesan WhatsApp untuk promosi dan marketing.",
+            fields: {
+              produk: { label: "Produk yang Dipromosikan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
+              promo: { label: "Promo yang Berjalan", placeholder: "misal: Diskon 10% untuk pesanan 5 box", value: "" },
+              targetPembeli: { label: "Target Pembeli", placeholder: "misal: Pekerja kantor", value: "" }
+            },
+            template: "Produk yang dipromosikan: {produk}. Promo yang sedang berjalan: {promo}. Target pembeli: {targetPembeli}. Bantu saya membuat template pesan WhatsApp untuk marketing:\n1. Pesan broadcast promo (singkat dan menarik)\n2. Pesan personal untuk pelanggan lama\n3. Pesan follow-up untuk yang belum beli\n4. Pesan upsell/cross-sell\n5. Pesan testimoni dan social proof."
+          }
+        ],
+
+        premiumList: [
+          {
+            type: "prompt",
+            name: "Prompt Audit Google Business Profile",
+            guide: "Evaluasi dan optimasi profil Google Business kamu secara mandiri. Aku sarankan copas prompt ini ke chatgpt untuk hasil yang lebih akurat.",
+            fields: {
+              namaBisnis: { label: "Nama Bisnis", placeholder: "misal: Dapur Mama Catering", value: "" },
+              kategori: { label: "Kategori Bisnis", placeholder: "misal: Katering", value: "" },
+              lokasi: { label: "Lokasi", placeholder: "misal: Jakarta Selatan", value: "" }
+            },
+            template: "Nama bisnis saya adalah {namaBisnis}, kategori {kategori}, berlokasi di {lokasi}. Bantu saya melakukan self-audit Google Business Profile:\n1. Checklist kelengkapan profil (nama, alamat, jam operasional, foto, deskripsi)\n2. Kata kunci yang harus ada di deskripsi\n3. Strategi mendapatkan review positif\n4. Cara merespons review negatif\n5. Postingan GBP yang efektif untuk menarik pelanggan lokal."
+          },
+          {
+            type: "prompt",
+            name: "Prompt Foto Produk Profesional",
+            guide: "Buat foto produk terlihat profesional tanpa studio mahal.",
+            fields: {
+              produk: { label: "Produk", placeholder: "misal: Nasi Box", value: "" },
+              platform: { label: "Platform Posting", placeholder: "misal: Instagram, WhatsApp", value: "" },
+              gayaFoto: { label: "Gaya Foto", placeholder: "misal: Minimalis, rustic, modern", value: "" }
+            },
+            template: "Produk saya adalah {produk}, akan diposting di {platform}. Gaya foto yang diinginkan: {gayaFoto}. Bantu saya membuat foto produk terlihat profesional:\n1. Setup pencahayaan sederhana (natural light / lampu rumah)\n2. Komposisi dan sudut pengambilan gambar\n3. Background dan props yang sesuai\n4. Edit foto dengan aplikasi gratis (Snapseed/Canva)\n5. Template caption yang menjual untuk setiap foto."
+          },
+          {
+            type: "prompt",
+            name: "Prompt Desain Event Launching Produk",
+            guide: "Rancang event launching produk yang menarik.",
+            fields: {
+              produk: { label: "Produk yang Diluncurkan", placeholder: "misal: Menu Baru Paket Hemat", value: "" },
+              tanggalLaunch: { label: "Tanggal Launching", placeholder: "misal: 15 Maret 2026", value: "" },
+              targetAudience: { label: "Target Audience", placeholder: "misal: Pekerja kantor area Sudirman", value: "" }
+            },
+            template: "Saya akan meluncurkan produk {produk} pada {tanggalLaunch}. Target audience: {targetAudience}. Bantu saya merancang event launching:\n1. Konsep dan tema event\n2. Timeline persiapan (H-30, H-7, H-1, H-day)\n3. Strategi promosi pre-event dan during event\n4. Aktivitas interaktif untuk peserta\n5. Follow-up pasca event untuk konversi penjualan."
+          },
+          {
+            type: "prompt",
+            name: "Prompt Content Plan 30 Hari",
+            guide: "Susun jadwal konten sebulan penuh agar lebih efisien.",
+            fields: {
+              jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
+              platform: { label: "Platform", placeholder: "misal: Instagram, TikTok", value: "" },
+              tujuanKonten: { label: "Tujuan Konten", placeholder: "misal: Meningkatkan penjualan, brand awareness", value: "" }
+            },
+            template: "Usaha saya adalah {jenisUsaha}, posting di {platform}. Tujuan konten: {tujuanKonten}. Bantu saya menyusun content plan 30 hari:\n1. Breakdown tema mingguan (4 minggu)\n2. Jenis konten per hari (edukasi, promo, behind the scene, testimoni)\n3. Template caption untuk setiap jenis konten\n4. Hashtag strategy yang relevan\n5. Metrik evaluasi performa konten."
+          },
+          {
+            type: "prompt",
+            name: "Prompt Growth Akun Medsos 30 Hari",
+            guide: "Strategi pertumbuhan akun media sosial dalam 30 hari.",
+            fields: {
+              akunMedsos: { label: "Akun Media Sosial", placeholder: "misal: @dapurmama.id", value: "" },
+              niche: { label: "Niche / Bidang", placeholder: "misal: Katering sehat", value: "" },
+              followerSaatIni: { label: "Follower Saat Ini", placeholder: "misal: 500", value: "" }
+            },
+            template: "Akun media sosial saya adalah {akunMedsos} di niche {niche}. Follower saat ini: {followerSaatIni}. Bantu saya menyusun strategi growth 30 hari:\n1. Optimasi profil (bio, foto, highlight)\n2. Strategi konten yang menarik follower baru\n3. Teknik engagement (komentar, DM, kolaborasi)\n4. Jadwal posting optimal\n5. Target follower realistis dan cara mengukurnya."
+          },
+          {
+            type: "link",
+            title: "Pencatatan Keuangan Bisnis",
+            desc: "Template spreadsheet pencatatan keuangan bisnis.",
+            url: "https://drive.google.com/drive/folders/1A6A1wKKWqxHJWQbgyIcLrXthSemD-R7l?usp=drive_link",
+            icon: "fa-solid fa-file-invoice-dollar"
+          },
+          {
+            type: "link",
+            title: "Template Desain Bisnis Canva",
+            desc: "Kumpulan template desain bisnis siap edit di Canva.",
+            url: "https://docs.google.com/document/d/1QEnEJvU2F1WkOrVZrnuJNuACFJ5C8_8_42AL58MWKVA/edit?usp=sharing",
+            icon: "fa-solid fa-palette"
+          }
+        ],
+
+        buildPrompt(pItem) {
+          let text = pItem.template;
+          for (let key in pItem.fields) {
+            let val = pItem.fields[key].value.trim() !== '' ? pItem.fields[key].value : `[${pItem.fields[key].label}]`;
+            text = text.replace(new RegExp(`{${key}}`, 'g'), val);
+          }
+          return text;
+        },
+
+        handleCopyPrompt(pItem, idx) {
+          const text = this.buildPrompt(pItem);
+          this.performCopy(text, idx);
+          this.trackEvent('prompt_copied', { chapter: this.activeTab, prompt_name: pItem.name || pItem.title });
+        },
+
+        handlePremiumCopyPrompt(pItem, idx) {
+          if (!this.isPremium) {
+            this.showUnlockModal = true;
+            return;
+          }
+          const text = this.buildPrompt(pItem);
+          this.performCopy(text, idx);
+          this.trackEvent('prompt_copied', { chapter: 'premium', prompt_name: pItem.name });
+        },
+
+        performCopy(text, idx) {
+          const setCopied = () => {
+            this.copiedPromptIdx = idx;
+            setTimeout(() => { this.copiedPromptIdx = null; }, 2000);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(setCopied).catch(() => {
+              this.fallbackCopy(text, setCopied);
+            });
+          } else {
+            this.fallbackCopy(text, setCopied);
+          }
+        },
+
+        fallbackCopy(text, setCopied) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            if (document.execCommand('copy')) {
+              setCopied();
+            } else {
+              alert('Gagal menyalin. Silakan salin manual dari preview.');
+            }
+          } catch (e) {
+            alert('Gagal menyalin. Silakan salin manual dari preview.');
+          }
+          document.body.removeChild(textarea);
+        },
+
+        resetFields(pItem) {
+          if (pItem.fields) {
+            for (let key in pItem.fields) {
+              pItem.fields[key].value = '';
+            }
+          }
+        },
+
+        handleBonusLinkClick(bItem) {
+          window.open(bItem.url, '_blank');
+          this.trackEvent('tool_clicked', { tab: 'bonus', tool_name: bItem.title });
+        },
+
+        handlePremiumLinkClick(pItem) {
+          if (!this.isPremium) {
+            this.showUnlockModal = true;
+            return;
+          }
+          window.open(pItem.url, '_blank');
+          this.trackEvent('tool_clicked', { tab: 'premium', tool_name: pItem.title });
+        },
+
+        trackEvent(eventName, params) {
+          if (typeof gtag === 'function') {
+            gtag('event', eventName, params);
+          }
+        },
+
+        activateCode() {
+          if (this.licenseInput.trim().toUpperCase() === this.SECRET_KEY) {
+            this.isPremium = true;
+            localStorage.setItem('umkm_ai_premium', 'true');
+            this.showUnlockModal = false;
+            this.licenseInput = '';
+            this.trackEvent('premium_unlocked', {});
+            alert('Selamat! Semua fitur Premium telah terbuka.');
+          } else {
+            alert('Kode Aktivasi Salah/Tidak Valid.');
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
