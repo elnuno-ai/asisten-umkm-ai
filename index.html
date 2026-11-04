@@ -187,6 +187,62 @@
               </div>
             </template>
 
+            <!-- Calculator type -->
+            <template x-if="bItem.type === 'calculator'">
+              <div class="space-y-3">
+                <div class="flex items-start space-x-3">
+                  <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg shrink-0">
+                    <i :class="bItem.icon"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-slate-900 text-xs" x-text="bItem.title"></h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5" x-text="bItem.desc"></p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                  <template x-for="(field, fKey) in bItem.fields" :key="fKey">
+                    <div>
+                      <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
+                      <input type="number" x-model="field.value" :placeholder="field.placeholder"
+                             class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                    </div>
+                  </template>
+                </div>
+                <button @click="calculateHPP(bItem)"
+                        class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <i class="fa-solid fa-calculator"></i>
+                  <span>Hitung HPP</span>
+                </button>
+                <div x-show="bItem.result" class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-1.5">
+                  <p class="text-[11px] font-bold text-emerald-900 mb-1">Hasil Perhitungan:</p>
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-white rounded p-2">
+                      <p class="text-[10px] text-slate-500">Total Biaya per Batch</p>
+                      <p class="font-bold text-slate-900" x-text="'Rp ' + (bItem.result ? bItem.result.totalBiaya.toLocaleString('id-ID') : '0')"></p>
+                    </div>
+                    <div class="bg-white rounded p-2">
+                      <p class="text-[10px] text-slate-500">HPP per Unit</p>
+                      <p class="font-bold text-indigo-700" x-text="'Rp ' + (bItem.result ? Math.round(bItem.result.hppPerUnit).toLocaleString('id-ID') : '0')"></p>
+                    </div>
+                    <div class="bg-white rounded p-2">
+                      <p class="text-[10px] text-slate-500">Harga Jual Saran</p>
+                      <p class="font-bold text-emerald-700" x-text="'Rp ' + (bItem.result ? Math.round(bItem.result.hargaJual).toLocaleString('id-ID') : '0')"></p>
+                    </div>
+                    <div class="bg-white rounded p-2">
+                      <p class="text-[10px] text-slate-500">Profit per Unit</p>
+                      <p class="font-bold text-amber-700" x-text="'Rp ' + (bItem.result ? Math.round(bItem.result.profitPerUnit).toLocaleString('id-ID') : '0')"></p>
+                    </div>
+                  </div>
+                  <p class="text-[10px] text-emerald-700 mt-1" x-text="bItem.result ? 'Margin: ' + bItem.result.marginPersen + '%' : ''"></p>
+                </div>
+                <button @click="handleBonusLinkClick(bItem)"
+                        class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  <span>Akses Tool Sekarang</span>
+                </button>
+              </div>
+            </template>
+
             <!-- Prompt type -->
             <template x-if="bItem.type === 'prompt'">
               <div class="space-y-3">
@@ -509,11 +565,19 @@
 
         bonusList: [
           {
-            type: "link",
+            type: "calculator",
             title: "Kalkulator HPP Otomatis",
-            desc: "Spreadsheet hitung harga pokok & margin.",
+            desc: "Hitung harga pokok penjualan per unit. Isi biaya per batch dan jumlah unit, lalu lihat HPP, harga jual saran, dan profit.",
             url: "https://drive.google.com/drive/folders/1IJzK5Vnbg-AZ8VN5vBS1_HhTuWqCkfpQ?usp=sharing",
-            icon: "fa-solid fa-calculator"
+            icon: "fa-solid fa-calculator",
+            fields: {
+              bahanBaku: { label: "Biaya Bahan Baku (per batch)", placeholder: "misal: 500000", value: "" },
+              tenagaKerja: { label: "Biaya Tenaga Kerja (per batch)", placeholder: "misal: 200000", value: "" },
+              overhead: { label: "Biaya Overhead (per batch)", placeholder: "misal: 100000", value: "" },
+              jumlahUnit: { label: "Jumlah Unit per Batch", placeholder: "misal: 100", value: "" },
+              margin: { label: "Margin yang Diinginkan (%)", placeholder: "misal: 30", value: "" }
+            },
+            result: null
           },
           {
             type: "prompt",
@@ -723,6 +787,35 @@
               pItem.fields[key].value = '';
             }
           }
+          if (pItem.result !== undefined) {
+            pItem.result = null;
+          }
+        },
+
+        calculateHPP(bItem) {
+          const bahanBaku = parseFloat(bItem.fields.bahanBaku.value) || 0;
+          const tenagaKerja = parseFloat(bItem.fields.tenagaKerja.value) || 0;
+          const overhead = parseFloat(bItem.fields.overhead.value) || 0;
+          const jumlahUnit = parseFloat(bItem.fields.jumlahUnit.value) || 0;
+          const margin = parseFloat(bItem.fields.margin.value) || 0;
+
+          if (jumlahUnit <= 0) {
+            alert('Jumlah unit harus lebih dari 0');
+            return;
+          }
+
+          const totalBiaya = bahanBaku + tenagaKerja + overhead;
+          const hppPerUnit = totalBiaya / jumlahUnit;
+          const hargaJual = hppPerUnit * (1 + margin / 100);
+          const profitPerUnit = hargaJual - hppPerUnit;
+
+          bItem.result = {
+            totalBiaya: totalBiaya,
+            hppPerUnit: hppPerUnit,
+            hargaJual: hargaJual,
+            profitPerUnit: profitPerUnit,
+            marginPersen: margin
+          };
         },
 
         handleBonusLinkClick(bItem) {
