@@ -1,7 +1,7 @@
 ﻿
     function appData() {
       return {
-        activeTab: 'prompts',
+        activeTab: 'home',
         activeBab: 0,
         isPremium: false,
         showUnlockModal: false,
