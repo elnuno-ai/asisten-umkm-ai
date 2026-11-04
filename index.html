@@ -366,6 +366,7 @@
           <li>Content Plan 30 Hari</li>
           <li>Growth Akun Medsos 30 Hari</li>
           <li>Marketing Mix 4P</li>
+          <li>Track Customer Experience</li>
           <li>Link Pencatatan Keuangan Bisnis</li>
           <li>Template Desain Bisnis Canva</li>
         </ul>
@@ -490,17 +491,17 @@
           },
           {
             title: "Bab 5: Customer Experience",
-            desc: "Kelola alur pesan, FAQ, dan respons komplain agar pelanggan kembali.",
+            desc: "Kelola pengalaman pelanggan agar mereka kembali.",
             prompts: [
               {
-                name: "Prompt Alur Customer Experience",
-                guide: "Kelola alur pesan, FAQ, dan respons komplain agar pelanggan kembali.",
+                name: "Prompt Customer Experience",
+                guide: "Kelola pengalaman pelanggan agar mereka kembali.",
                 fields: {
                   jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
-                  titikKontak: { label: "Titik Kontak Pelanggan", placeholder: "misal: WhatsApp, Instagram, telepon", value: "" },
-                  masalahUmum: { label: "Masalah yang Sering Muncul", placeholder: "misal: Pesanan terlambat, salah menu", value: "" }
+                  pertanyaanUmum: { label: "Pertanyaan Umum Pelanggan", placeholder: "misal: Harga, cara pesan, jam operasional", value: "" },
+                  masalahAnonim: { label: "Masukan/Masalah (sudah dianonimkan)", placeholder: "misal: Pesanan terlambat, rasa kurang pas", value: "" }
                 },
-                template: "Usaha saya adalah {jenisUsaha}. Titik kontak dengan pelanggan: {titikKontak}. Masalah yang sering muncul: {masalahUmum}. Bantu saya menyusun strategi customer experience:\n1. Peta perjalanan pelanggan (customer journey map)\n2. Template respons untuk setiap titik kontak\n3. FAQ yang sering ditanyakan\n4. SOP penanganan komplain\n5. Strategi follow-up agar pelanggan kembali dan merekomendasikan."
+                template: "Saya menjalankan usaha {jenisUsaha}. Pelanggan sering bertanya tentang {pertanyaanUmum} dan pernah memberi masukan seperti {masalahAnonim}. Bantu saya mengelompokkan masukan, membuat perbaikan pengalaman pelanggan, menyusun dan membuat pesan tindak lanjut yang sopan dan tidak memaksa."
               }
             ]
           }
@@ -628,6 +629,19 @@
               masalah: { label: "Masalah Pemasaran", placeholder: "misal: Kurang pelanggan, persaingan harga", value: "" }
             },
             template: "Bantu saya menyusun marketing mix untuk usaha {jenisUsaha} yang menjual {produk} kepada {pelanggan} di {area}.\nKondisi saat ini: harga jual {harga},\nperkiraan biaya per unit {biaya},\nsaluran penjualan {saluran},\ndan masalah pemasaran {masalah}.\n\nSusun marketing mix (4P) yang lengkap dan terintegrasi:\n\n1. PRODUCT (Produk):\n   - Fitur dan manfaat utama\n   - Kualitas dan standar\n   - Variasi / lini produk\n   - Packaging dan branding\n   - Diferensiasi dari pesaing\n\n2. PRICE (Harga):\n   - Analisis HPP dan margin\n   - Strategi penetapan harga (cost-plus / value-based / competitive)\n   - Skema diskon dan promo\n   - Kapan dan bagaimana menaikkan harga\n\n3. PLACE (Tempat/Distribusi):\n   - Evaluasi saluran penjualan saat ini\n   - Channel baru yang potensial\n   - Strategi omnichannel\n   - Manajemen stok dan logistik\n\n4. PROMOTION (Promosi):\n   - Pesan utama (value proposition)\n   - Alokasi budget per channel\n   - Kalender promosi 1 bulan\n   - Metrik keberhasilan\n\n5. INTEGRASI 4P:\n   - Bagaimana 4P saling mendukung\n   - Prioritas tindakan (apa yang dilakukan dulu)\n   - Rencana implementasi 30 hari\n\n6. EVALUASI:\n   - KPI yang harus dipantau\n   - Red flags yang harus dihindari\n   - Benchmark keberhasilan"
+           },
+           {
+             type: "prompt",
+             name: "Track Customer Experience",
+             guide: "Kelola alur pesan, FAQ, dan respons komplain agar pelanggan kembali. Isi detail agar AI menghasilkan strategi customer experience yang komprehensif.",
+             fields: {
+               jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
+               titikKontak: { label: "Titik Kontak Pelanggan", placeholder: "misal: WhatsApp, Instagram, telepon", value: "" },
+               masalahUmum: { label: "Masalah yang Sering Muncul", placeholder: "misal: Pesanan terlambat, salah menu", value: "" },
+               volumePelanggan: { label: "Jumlah Pelanggan per Hari", placeholder: "misal: 20-30 pelanggan", value: "" },
+               waktuRespon: { label: "Waktu Respon Rata-rata", placeholder: "misal: 5 menit, 1 jam", value: "" }
+             },
+             template: "Usaha saya adalah {jenisUsaha}. Titik kontak dengan pelanggan: {titikKontak}. Masalah yang sering muncul: {masalahUmum}. Volume pelanggan per hari: {volumePelanggan}. Waktu respon rata-rata: {waktuRespon}.\n\nBantu saya menyusun strategi customer experience:\n\n1. PETA PERJALANAN PELANGGAN (Customer Journey Map):\n   - Tahap awareness (bagaimana pelanggan menemukan usaha)\n   - Tahap consideration (bagaimana pelanggan memutuskan beli)\n   - Tahap purchase (proses pemesanan)\n   - Tahap delivery (pengiriman/penyajian)\n   - Tahap post-purchase (follow-up dan retention)\n\n2. TEMPLATE RESPONS (untuk setiap titik kontak):\n   - Template sambutan (greeting)\n   - Template konfirmasi pesanan\n   - Template update status\n   - Template penanganan komplain\n   - Template follow-up\n\n3. FAQ (10 pertanyaan yang sering ditanyakan + jawaban):\n   - Pertanyaan tentang harga\n   - Pertanyaan tentang cara pesan\n   - Pertanyaan tentang pengiriman\n   - Pertanyaan tentang pembayaran\n   - Pertanyaan tentang garansi/retur\n\n4. SOP PENANGANAN KOMPLAIN:\n   - Langkah 1: Dengarkan dan akui\n   - Langkah 2: Minta maaf dan empati\n   - Langkah 3: Tawarkan solusi\n   - Langkah 4: Tindak lanjut\n   - Template respons untuk setiap jenis komplain\n\n5. STRATEGI FOLLOW-UP:\n   - Kapan follow-up (1 hari, 3 hari, 7 hari setelah pembelian)\n   - Template pesan follow-up\n   - Cara meminta review/testimoni\n   - Strategi loyalty (pelanggan kembali)\n\n6. METRIK CUSTOMER EXPERIENCE:\n   - Response time\n   - Customer satisfaction score (CSAT)\n   - Net Promoter Score (NPS)\n   - Repeat purchase rate\n   - Complaint resolution time"
            },
            {
              type: "link",
