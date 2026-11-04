@@ -365,6 +365,7 @@
           <li>Plan Event Launching Produk</li>
           <li>Content Plan 30 Hari</li>
           <li>Growth Akun Medsos 30 Hari</li>
+          <li>Marketing Mix 4P</li>
           <li>Link Pencatatan Keuangan Bisnis</li>
           <li>Template Desain Bisnis Canva</li>
         </ul>
@@ -471,48 +472,19 @@
             ]
           },
           {
-            title: "Bab 4: Marketing Mix 4P",
-            desc: "Susun strategi produk, harga, tempat, dan promosi yang pas.",
+            title: "Bab 4: Marketing",
+            desc: "Susun strategi pemasaran yang efektif untuk usahamu.",
             prompts: [
               {
-                name: "Prompt Strategi Produk",
-                guide: "Susun strategi produk yang tepat untuk usahamu.",
+                name: "Prompt Strategi Marketing",
+                guide: "Susun strategi pemasaran yang efektif untuk usahamu.",
                 fields: {
                   jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
                   produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
-                  keunggulanProduk: { label: "Keunggulan Produk", placeholder: "misal: Sehat, higienis, tepat waktu", value: "" }
+                  targetPembeli: { label: "Target Pembeli", placeholder: "misal: Pekerja kantor", value: "" },
+                  channel: { label: "Channel Pemasaran", placeholder: "misal: Instagram, WhatsApp, TikTok", value: "" }
                 },
-                template: "Saya memiliki usaha {jenisUsaha} dengan produk {produk}. Keunggulan produk saya adalah {keunggulanProduk}. Bantu saya menyusun strategi produk:\n1. Fitur dan manfaat utama produk\n2. Kualitas dan standar yang harus dijaga\n3. Variasi atau lini produk yang bisa dikembangkan\n4. Packaging dan branding yang sesuai\n5. Siklus hidup produk dan rencana pengembangan."
-              },
-              {
-                name: "Prompt Strategi Harga",
-                guide: "Tentukan harga yang kompetitif dan menguntungkan.",
-                fields: {
-                  produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
-                  biayaProduksi: { label: "Biaya Produksi per Unit", placeholder: "misal: Rp 15.000", value: "" },
-                  targetMargin: { label: "Target Margin (%)", placeholder: "misal: 30", value: "" }
-                },
-                template: "Produk saya adalah {produk} dengan biaya produksi {biayaProduksi} per unit. Target margin keuntungan saya adalah {targetMargin}%. Bantu saya menyusun strategi harga:\n1. Perhitungan HPP yang akurat\n2. Analisis harga pesaing\n3. Strategi penetapan harga (cost-plus, value-based, competitive)\n4. Skema diskon dan promo yang tidak merugikan\n5. Kapan dan bagaimana menaikkan harga."
-              },
-              {
-                name: "Prompt Strategi Tempat / Distribusi",
-                guide: "Pilih channel penjualan yang paling efektif.",
-                fields: {
-                  produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
-                  lokasi: { label: "Lokasi Usaha", placeholder: "misal: Jakarta Selatan", value: "" },
-                  channelPenjualan: { label: "Channel Penjualan Saat Ini", placeholder: "misal: WhatsApp, Instagram, offline", value: "" }
-                },
-                template: "Produk saya adalah {produk}, berlokasi di {lokasi}. Channel penjualan saat ini: {channelPenjualan}. Bantu saya menyusun strategi tempat/distribusi:\n1. Evaluasi channel penjualan saat ini\n2. Channel baru yang potensial\n3. Strategi omnichannel (offline + online)\n4. Manajemen stok dan logistik\n5. Cara memperluas jangkauan tanpa menambah biaya besar."
-              },
-              {
-                name: "Prompt Strategi Promosi",
-                guide: "Rancang promosi yang efektif dengan budget terbatas.",
-                fields: {
-                  produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
-                  budgetPromo: { label: "Budget Promosi per Bulan", placeholder: "misal: Rp 500.000", value: "" },
-                  channelPromo: { label: "Channel Promosi", placeholder: "misal: Instagram, WhatsApp, TikTok", value: "" }
-                },
-                template: "Produk saya adalah {produk} dengan budget promosi {budgetPromo} per bulan. Channel promosi yang digunakan: {channelPromo}. Bantu saya menyusun strategi promosi:\n1. Pesan utama yang ingin disampaikan\n2. Alokasi budget per channel\n3. Kalender konten promosi 1 bulan\n4. Metrik keberhasilan promosi\n5. Promosi low-budget yang efektif untuk UMKM."
+                template: "Saya memiliki usaha {jenisUsaha} yang menjual {produk} kepada {targetPembeli}. Channel pemasaran yang saya gunakan: {channel}. Bantu saya menyusun strategi marketing:\n1. Pesan utama (value proposition) yang menarik target pembeli\n2. Channel pemasaran yang paling efektif dan cara memaksimalkannya\n3. Konten yang resonan dengan target pembeli\n4. Strategi promosi yang sesuai budget UMKM\n5. Metrik keberhasilan dan cara mengukurnya\n6. Rencana 30 hari untuk meningkatkan visibilitas dan penjualan."
               }
             ]
           },
@@ -539,7 +511,7 @@
             type: "link",
             title: "Kalkulator HPP Otomatis",
             desc: "Spreadsheet hitung harga pokok & margin.",
-            url: "https://docs.google.com/spreadsheets/d/1Tr5OZUHpvTD5iaAfIaovhFzQq4UlX1iE/edit?usp=sharing&ouid=100562355406787208229&rtpof=true&sd=true",
+            url: "https://drive.google.com/drive/folders/1IJzK5Vnbg-AZ8VN5vBS1_HhTuWqCkfpQ?usp=sharing",
             icon: "fa-solid fa-calculator"
           },
           {
@@ -586,7 +558,7 @@
           {
             type: "prompt",
             name: "Prompt Foto Produk Profesional",
-            guide: "Rencana foto produk profesional dengan peralatan yang kamu miliki. Isi detail agar AI memberikan panduan yang realistis dan actionable.",
+            guide: "Siapkan foto terbaik produk Anda, lampirkan bersamaan dengan salinan prompt AI. AI akan merubahnya menjadi lebih profesional dan tetap realistis. Isi detail agar AI dapat menghasilkan output yang sesuai imajinasi Anda",
             fields: {
               produk: { label: "Produk yang Difoto", placeholder: "misal: Nasi Box, Kue Tart, Paket Sembako", value: "" },
               platform: { label: "Platform Posting", placeholder: "misal: Instagram Feed, WhatsApp Status, TikTok", value: "", options: ["Instagram Feed", "Instagram Stories", "WhatsApp Status", "TikTok", "Facebook", "Marketplace"] },
@@ -642,9 +614,25 @@
             template: "Akun media sosial saya dengan detail berikut:\n- Akun: {akunMedsos}\n- Niche: {niche}\n- Platform: {platform}\n- Follower saat ini: {followerSaatIni}\n- Target follower 30 hari: {targetFollower}\n- Budget iklan: {budget}\n- Waktu yang bisa dicurahkan: {waktuLuang}\n\nBantu saya menyusun strategi growth 30 hari dengan format berikut:\n\n1. OPTIMASI PROFIL (checklist):\n   - Username yang mudah dicari\n   - Bio yang jelas (siapa, apa, untuk siapa, CTA)\n   - Foto profil profesional\n   - Highlight stories (minimal 3: Produk, Testimoni, FAQ)\n   - Link di bio (WhatsApp / linktree)\n\n2. STRATEGI KONTEN (untuk menarik follower baru):\n   - 3 jenis konten yang paling efektif untuk niche ini\n   - Format yang diprioritaskan (Reels/TikTok > Carousel > Static)\n   - Hook (kalimat pembuka) yang menarik perhatian\n   - CTA yang mendorong follow\n\n3. TEKNIK ENGAGEMENT (untuk meningkatkan interaksi):\n   - Cara merespons komentar (template respons)\n   - Strategi DM (welcome message, follow-up)\n   - Kolaborasi dengan akun sejenis (cara approach)\n   - Engagement dengan akun target (komentar bermakna)\n\n4. JADWAL POSTING:\n   - Hari dan jam optimal (berdasarkan niche)\n   - Frekuensi per minggu\n   - Rasio konten (edukasi : promo : engagement : behind the scene)\n\n5. TARGET MINGGUAN:\n   - Minggu 1: X follower (fokus optimasi profil)\n   - Minggu 2: X follower (fokus konten viral)\n   - Minggu 3: X follower (fokus engagement)\n   - Minggu 4: X follower (fokus konversi)\n\n6. METRIK YANG DIUKUR:\n   - Follower growth rate\n   - Engagement rate\n   - Reach per post\n   - Profile visits\n   - Website/DM clicks\n\n7. RED FLAGS (hal yang harus dihindari):\n   - Beli follower\n   - Follow-unfollow massal\n   - Konten yang tidak relevan\n   - Spam hashtag"
           },
           {
-            type: "link",
-            title: "Pencatatan Keuangan Bisnis",
-            desc: "Template spreadsheet pencatatan keuangan bisnis.",
+            type: "prompt",
+            name: "Marketing Mix 4P",
+            guide: "Susun marketing mix (Product, Price, Place, Promotion) yang lengkap dan terintegrasi untuk usahamu.",
+            fields: {
+              jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian", value: "" },
+              produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang Kantor", value: "" },
+              pelanggan: { label: "Target Pelanggan", placeholder: "misal: Pekerja kantor", value: "" },
+              area: { label: "Area / Lokasi", placeholder: "misal: Jakarta Selatan", value: "" },
+              harga: { label: "Harga Jual per Unit", placeholder: "misal: Rp 25.000", value: "" },
+              biaya: { label: "Perkiraan Biaya per Unit", placeholder: "misal: Rp 15.000", value: "" },
+              saluran: { label: "Saluran Penjualan", placeholder: "misal: WhatsApp, Instagram, GoFood", value: "" },
+              masalah: { label: "Masalah Pemasaran", placeholder: "misal: Kurang pelanggan, persaingan harga", value: "" }
+            },
+            template: "Bantu saya menyusun marketing mix untuk usaha {jenisUsaha} yang menjual {produk} kepada {pelanggan} di {area}.\nKondisi saat ini: harga jual {harga},\nperkiraan biaya per unit {biaya},\nsaluran penjualan {saluran},\ndan masalah pemasaran {masalah}.\n\nSusun marketing mix (4P) yang lengkap dan terintegrasi:\n\n1. PRODUCT (Produk):\n   - Fitur dan manfaat utama\n   - Kualitas dan standar\n   - Variasi / lini produk\n   - Packaging dan branding\n   - Diferensiasi dari pesaing\n\n2. PRICE (Harga):\n   - Analisis HPP dan margin\n   - Strategi penetapan harga (cost-plus / value-based / competitive)\n   - Skema diskon dan promo\n   - Kapan dan bagaimana menaikkan harga\n\n3. PLACE (Tempat/Distribusi):\n   - Evaluasi saluran penjualan saat ini\n   - Channel baru yang potensial\n   - Strategi omnichannel\n   - Manajemen stok dan logistik\n\n4. PROMOTION (Promosi):\n   - Pesan utama (value proposition)\n   - Alokasi budget per channel\n   - Kalender promosi 1 bulan\n   - Metrik keberhasilan\n\n5. INTEGRASI 4P:\n   - Bagaimana 4P saling mendukung\n   - Prioritas tindakan (apa yang dilakukan dulu)\n   - Rencana implementasi 30 hari\n\n6. EVALUASI:\n   - KPI yang harus dipantau\n   - Red flags yang harus dihindari\n   - Benchmark keberhasilan"
+           },
+           {
+             type: "link",
+             title: "Pencatatan Keuangan Bisnis",
+             desc: "Template spreadsheet pencatatan keuangan bisnis.",
             url: "https://drive.google.com/drive/folders/1A6A1wKKWqxHJWQbgyIcLrXthSemD-R7l?usp=drive_link",
             icon: "fa-solid fa-file-invoice-dollar"
           },
@@ -652,7 +640,7 @@
             type: "link",
             title: "Template Desain Bisnis Canva",
             desc: "Kumpulan template desain bisnis siap edit di Canva.",
-            url: "https://docs.google.com/document/d/1QEnEJvU2F1WkOrVZrnuJNuACFJ5C8_8_42AL58MWKVA/edit?usp=sharing",
+            url: "https://drive.google.com/drive/folders/120U5R7oGkdiF1ZQjVmdgY4ohjmCnpI_Z?usp=sharing",
             icon: "fa-solid fa-palette"
           }
         ],
