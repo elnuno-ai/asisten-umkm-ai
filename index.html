@@ -600,7 +600,20 @@
               targetPembeli: { label: "Target Pembeli", placeholder: "misal: Pekerja kantor", value: "" }
             },
             template: "Produk yang dipromosikan: {produk}. Promo yang sedang berjalan: {promo}. Target pembeli: {targetPembeli}. Bantu saya membuat template pesan WhatsApp untuk marketing:\n1. Pesan broadcast promo (singkat dan menarik)\n2. Pesan personal untuk pelanggan lama\n3. Pesan follow-up untuk yang belum beli\n4. Pesan upsell/cross-sell\n5. Pesan testimoni dan social proof."
-          }
+          },
+          {
+            type: "prompt",
+            title: "Prompt Checklist Aksi 7 Hari Persiapan Bisnis",
+            guide: "Susun checklist aksi 7 hari untuk mempersiapkan bisnis baru atau meluncurkan produk baru.",
+            fields: {
+              jenisUsaha: { label: "Jenis Usaha", placeholder: "misal: Katering Harian, Toko Roti", value: "" },
+              produk: { label: "Produk/Layanan", placeholder: "misal: Paket Makan Siang, Roti Artisan", value: "" },
+              targetPembeli: { label: "Target Pembeli", placeholder: "misal: Pekerja kantor, Ibu rumah tangga", value: "" },
+              budget: { label: "Budget Persiapan", placeholder: "misal: Rp 500.000, Rp 1.000.000", value: "" },
+              waktuLuang: { label: "Waktu yang Tersedia per Hari", placeholder: "misal: 2 jam, 4 jam", value: "" }
+            },
+            template: "Saya akan memulai/meluncurkan usaha dengan detail berikut:\n- Jenis usaha: {jenisUsaha}\n- Produk/layanan: {produk}\n- Target pembeli: {targetPembeli}\n- Budget persiapan: {budget}\n- Waktu yang tersedia per hari: {waktuLuang}\n\nBantu saya menyusun checklist aksi 7 hari untuk mempersiapkan bisnis ini dengan format berikut:\n\nHARI 1 — Riset & Validasi:\n- [ ] Tentukan niche dan target pasar spesifik\n- [ ] Riset 3 pesaing terdekat (harga, kekuatan, kelemahan)\n- [ ] Wawancara 5 calon pelanggan (pertanyaan kunci)\n- [ ] Validasi ide dengan pre-order atau survei\n- Output: 1 paragraf kesimpulan riset\n\nHARI 2 — Produk & HPP:\n- [ ] Tentukan spesifikasi produk (bahan, ukuran, kualitas)\n- [ ] Hitung HPP (bahan baku, tenaga kerja, overhead)\n- [ ] Tentukan harga jual dan margin\n- [ ] Buat 1 prototipe / sample produk\n- Output: HPP per unit dan harga jual saran\n\nHARI 3 — Branding & Identitas:\n- [ ] Pilih nama bisnis yang mudah diingat\n- [ ] Buat logo sederhana (Canva)\n- [ ] Tentukan warna brand (2-3 warna)\n- [ ] Buat tagline (1 kalimat)\n- Output: Nama, logo, warna, tagline\n\nHARI 4 — Channel & Setup:\n- [ ] Buat akun media sosial (IG, TikTok, WA Business)\n- [ ] Siapkan template chat WhatsApp (greeting, katalog, harga)\n- [ ] Buat Google Business Profile (jika ada lokasi fisik)\n- [ ] Siapkan metode pembayaran (transfer, QRIS, COD)\n- Output: Semua channel siap digunakan\n\nHARI 5 — Konten & Foto:\n- [ ] Foto produk (minimal 5 foto: flat lay, close-up, lifestyle, packaging, behind the scene)\n- [ ] Edit foto (Snapseed/Canva)\n- [ ] Tulis caption untuk 3 postingan pertama\n- [ ] Siapkan hashtag (10-15 hashtag)\n- Output: 5 foto + 3 caption + hashtag\n\nHARI 6 — Soft Launch:\n- [ ] Posting konten pertama di media sosial\n- [ ] Kirim pesan ke 10 orang terdekat (keluarga, teman, tetangga)\n- [ ] Tawarkan promo soft launch (diskon/bonus untuk 5 pembeli pertama)\n- [ ] Minta testimoni dari pembeli pertama\n- Output: Minimal 3 pesanan pertama\n\nHARI 7 — Evaluasi & Rencana:\n- [ ] Review hasil 6 hari (berapa pesanan, feedback, masalah)\n- [ ] Identifikasi 3 hal yang berhasil dan 3 hal yang perlu diperbaiki\n- [ ] Susun rencana minggu depan (konten, promosi, perbaikan)\n- [ ] Tetapkan target minggu depan (jumlah pesanan, follower, review)\n- Output: Laporan singkat + rencana minggu 2\n\nBONUS: Checklist peralatan minimal (sesuai budget):\n- HP dengan kamera yang layak\n- Kain/tekstur untuk background foto\n- Lampu (natural atau lampu meja)\n- Kemasan produk (plastik, box, stiker)\n- Alat tulis / catatan keuangan"
+          },
         ],
 
         premiumList: [
