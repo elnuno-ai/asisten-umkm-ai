@@ -9,6 +9,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>[x-cloak] { display: none !important; }</style>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <!-- Google Analytics (ganti G-XXXXXXXXXX dengan Measurement ID asli) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
@@ -273,131 +274,313 @@
         <p class="text-xs text-amber-700 mt-0.5">Semua template, kalkulator, dan checklist pendukung usaha kamu.</p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <template x-for="(bItem, bIdx) in bonusList" :key="bIdx">
-          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
-
-            <!-- Link type -->
-            <template x-if="bItem.type === 'link'">
-              <div class="flex flex-col justify-between h-full space-y-3">
-                <div class="flex items-start space-x-3">
-                  <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg shrink-0">
-                    <i :class="bItem.icon"></i>
-                  </div>
-                  <div>
-                    <h3 class="font-bold text-slate-900 text-xs" x-text="bItem.title"></h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5" x-text="bItem.desc"></p>
-                  </div>
-                </div>
-                <button @click="handleBonusLinkClick(bItem)"
-                        class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
-                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                  <span>Akses Tool Sekarang</span>
-                </button>
-              </div>
-            </template>
-
-            <!-- Calculator type -->
-            <template x-if="bItem.type === 'calculator'">
-              <div class="space-y-3">
-                <div class="flex items-start space-x-3">
-                  <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg shrink-0">
-                    <i :class="bItem.icon"></i>
-                  </div>
-                  <div>
-                    <h3 class="font-bold text-slate-900 text-xs" x-text="bItem.title"></h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5" x-text="bItem.desc"></p>
-                  </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                  <template x-for="(field, fKey) in bItem.fields" :key="fKey">
-                    <div>
-                      <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
-                      <input type="number" x-model="field.value" :placeholder="field.placeholder"
-                             class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
-                    </div>
+      <!-- Row 1: Checklist 7 Hari (full width) -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+        <div>
+          <h3 class="font-bold text-slate-900 text-sm" x-text="bonusList[3].title"></h3>
+          <p class="text-xs text-slate-500 mt-0.5" x-text="bonusList[3].guide"></p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
+          <template x-for="(field, fKey) in bonusList[3].fields" :key="fKey">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
+              <template x-if="field.options">
+                <select x-model="field.value" class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                  <option value="" disabled selected>Pilih...</option>
+                  <template x-for="opt in field.options" :key="opt">
+                    <option :value="opt" x-text="opt"></option>
                   </template>
-                </div>
-                <button @click="calculateHPP(bItem)"
-                        class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
-                  <i class="fa-solid fa-calculator"></i>
-                  <span>Hitung HPP</span>
-                </button>
-                <div x-show="bItem.result" class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-1.5">
-                  <p class="text-[11px] font-bold text-emerald-900 mb-1">Hasil Perhitungan:</p>
-                  <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div class="bg-white rounded p-2">
-                      <p class="text-[10px] text-slate-500">Total Biaya per Batch</p>
-                      <p class="font-bold text-slate-900" x-text="'Rp ' + (bItem.result ? bItem.result.totalBiaya.toLocaleString('id-ID') : '0')"></p>
-                    </div>
-                    <div class="bg-white rounded p-2">
-                      <p class="text-[10px] text-slate-500">HPP per Unit</p>
-                      <p class="font-bold text-indigo-700" x-text="'Rp ' + (bItem.result ? Math.round(bItem.result.hppPerUnit).toLocaleString('id-ID') : '0')"></p>
-                    </div>
-                    <div class="bg-white rounded p-2">
-                      <p class="text-[10px] text-slate-500">Harga Jual Saran</p>
-                      <p class="font-bold text-emerald-700" x-text="'Rp ' + (bItem.result ? Math.round(bItem.result.hargaJual).toLocaleString('id-ID') : '0')"></p>
-                    </div>
-                    <div class="bg-white rounded p-2">
-                      <p class="text-[10px] text-slate-500">Profit per Unit</p>
-                      <p class="font-bold text-amber-700" x-text="'Rp ' + (bItem.result ? Math.round(bItem.result.profitPerUnit).toLocaleString('id-ID') : '0')"></p>
-                    </div>
-                  </div>
-                  <p class="text-[10px] text-emerald-700 mt-1" x-text="bItem.result ? 'Margin: ' + bItem.result.marginPersen + '%' : ''"></p>
-                </div>
-                <button @click="handleBonusLinkClick(bItem)"
-                        class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
-                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                  <span>Akses Tool Sekarang</span>
-                </button>
-              </div>
-            </template>
+                </select>
+              </template>
+              <template x-if="!field.options">
+                <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                       class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+              </template>
+            </div>
+          </template>
+        </div>
+        <div class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto"
+             x-text="buildPrompt(bonusList[3])"></div>
+        <div class="flex space-x-2">
+          <button @click="handleCopyPrompt(bonusList[3], 3)"
+                  :class="copiedPromptIdx === 3 ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'"
+                  class="flex-1 px-4 py-2 text-white text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5">
+            <i :class="copiedPromptIdx === 3 ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
+            <span x-text="copiedPromptIdx === 3 ? 'Berhasil Disalin!' : 'Salin Prompt'"></span>
+          </button>
+          <button @click="resetFields(bonusList[3])"
+                  class="px-3 py-2 text-slate-600 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition">
+            Reset
+          </button>
+        </div>
+      </div>
 
-            <!-- Prompt type -->
-            <template x-if="bItem.type === 'prompt'">
-              <div class="space-y-3">
-                <div>
-                  <h3 class="font-bold text-slate-900 text-sm" x-text="bItem.title"></h3>
-                  <p class="text-xs text-slate-500 mt-0.5" x-text="bItem.guide"></p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                  <template x-for="(field, fKey) in bItem.fields" :key="fKey">
-                    <div>
-                      <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
-                      <template x-if="field.options">
-                        <select x-model="field.value" class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
-                          <option value="" disabled selected>Pilih...</option>
-                          <template x-for="opt in field.options" :key="opt">
-                            <option :value="opt" x-text="opt"></option>
-                          </template>
-                        </select>
-                      </template>
-                      <template x-if="!field.options">
-                        <input type="text" x-model="field.value" :placeholder="field.placeholder"
-                               class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
-                      </template>
-                    </div>
-                  </template>
-                </div>
-                <div class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto"
-                     x-text="buildPrompt(bItem)"></div>
-                <div class="flex space-x-2">
-                  <button @click="handleCopyPrompt(bItem, bIdx)"
-                          :class="copiedPromptIdx === bIdx ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'"
-                          class="flex-1 px-4 py-2 text-white text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5">
-                    <i :class="copiedPromptIdx === bIdx ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
-                    <span x-text="copiedPromptIdx === bIdx ? 'Berhasil Disalin!' : 'Salin Prompt'"></span>
-                  </button>
-                  <button @click="resetFields(bItem)"
-                          class="px-3 py-2 text-slate-600 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition">
-                    Reset
-                  </button>
-                </div>
+      <!-- Row 2: Kalkulator HPP (1/3) + Catatan Keuangan (2/3) -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+        <!-- Kalkulator HPP -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+          <div class="flex items-start space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-xs" x-text="bonusList[0].title"></h3>
+              <p class="text-[11px] text-slate-500 mt-0.5" x-text="bonusList[0].desc"></p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
+            <template x-for="(field, fKey) in bonusList[0].fields" :key="fKey">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
+                <input type="number" x-model="field.value" :placeholder="field.placeholder"
+                       class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
               </div>
             </template>
           </div>
-        </template>
+          <button @click="calculateHPP(bonusList[0])"
+                  class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
+            <i class="fa-solid fa-calculator"></i>
+            <span>Hitung HPP</span>
+          </button>
+          <div x-show="bonusList[0].result" class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-1.5">
+            <p class="text-[11px] font-bold text-emerald-900 mb-1">Hasil Perhitungan:</p>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-white rounded p-2">
+                <p class="text-[10px] text-slate-500">Total Biaya per Batch</p>
+                <p class="font-bold text-slate-900" x-text="'Rp ' + (bonusList[0].result ? bonusList[0].result.totalBiaya.toLocaleString('id-ID') : '0')"></p>
+              </div>
+              <div class="bg-white rounded p-2">
+                <p class="text-[10px] text-slate-500">HPP per Unit</p>
+                <p class="font-bold text-indigo-700" x-text="'Rp ' + (bonusList[0].result ? Math.round(bonusList[0].result.hppPerUnit).toLocaleString('id-ID') : '0')"></p>
+              </div>
+              <div class="bg-white rounded p-2">
+                <p class="text-[10px] text-slate-500">Harga Jual Saran</p>
+                <p class="font-bold text-emerald-700" x-text="'Rp ' + (bonusList[0].result ? Math.round(bonusList[0].result.hargaJual).toLocaleString('id-ID') : '0')"></p>
+              </div>
+              <div class="bg-white rounded p-2">
+                <p class="text-[10px] text-slate-500">Profit per Unit</p>
+                <p class="font-bold text-amber-700" x-text="'Rp ' + (bonusList[0].result ? Math.round(bonusList[0].result.profitPerUnit).toLocaleString('id-ID') : '0')"></p>
+              </div>
+            </div>
+            <p class="text-[10px] text-emerald-700 mt-1" x-text="bonusList[0].result ? 'Margin: ' + bonusList[0].result.marginPersen + '%' : ''"></p>
+          </div>
+          <button @click="handleBonusLinkClick(bonusList[0])"
+                  class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span>Akses Tool Sekarang</span>
+          </button>
+        </div>
+
+        <!-- Catatan Keuangan (eye-catching, wider) -->
+        <div class="sm:col-span-2 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl shadow-sm border-2 border-emerald-400 p-4 space-y-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+              <i class="fa-solid fa-book"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-emerald-900 text-sm">Catatan Keuangan</h3>
+              <p class="text-[11px] text-emerald-700 mt-0.5">Catat pemasukan & pengeluaran harian usaha kamu.</p>
+            </div>
+          </div>
+
+          <!-- Input Form -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-white/60 p-3 rounded-lg border border-emerald-200">
+            <div class="sm:col-span-1">
+              <label class="block text-[11px] font-semibold text-emerald-800 mb-1">Keterangan</label>
+              <input type="text" x-model="accounting.form.keterangan" placeholder="misal: Penjualan nasi box"
+                     class="w-full text-xs p-2 rounded border border-emerald-300 focus:ring-1 focus:ring-emerald-500 bg-white">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-emerald-800 mb-1">Debet (Pemasukan)</label>
+              <input type="number" x-model="accounting.form.debet" placeholder="0"
+                     class="w-full text-xs p-2 rounded border border-emerald-300 focus:ring-1 focus:ring-emerald-500 bg-white">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-emerald-800 mb-1">Kredit (Pengeluaran)</label>
+              <input type="number" x-model="accounting.form.kredit" placeholder="0"
+                     class="w-full text-xs p-2 rounded border border-emerald-300 focus:ring-1 focus:ring-emerald-500 bg-white">
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <button @click="addTransaction()"
+                    class="flex-1 py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
+              <i class="fa-solid fa-plus"></i>
+              <span>Simpan Transaksi</span>
+            </button>
+            <button @click="accounting.form = { keterangan: '', debet: '', kredit: '' }"
+                    class="px-3 py-2 text-emerald-700 text-xs font-medium rounded-lg border border-emerald-300 hover:bg-emerald-50 transition">
+              Reset
+            </button>
+          </div>
+
+          <!-- Tanggal filter -->
+          <div class="flex items-center space-x-2">
+            <label class="text-[11px] font-semibold text-emerald-800">Tanggal:</label>
+            <input type="date" x-model="accounting.filterDate"
+                   class="text-xs p-1.5 rounded border border-emerald-300 focus:ring-1 focus:ring-emerald-500 bg-white">
+          </div>
+
+          <!-- Tabel Transaksi -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs border-collapse">
+              <thead>
+                <tr class="bg-emerald-100 text-emerald-900">
+                  <th class="p-2 text-left font-bold border border-emerald-200">No</th>
+                  <th class="p-2 text-left font-bold border border-emerald-200">Keterangan</th>
+                  <th class="p-2 text-right font-bold border border-emerald-200">Debet</th>
+                  <th class="p-2 text-right font-bold border border-emerald-200">Kredit</th>
+                  <th class="p-2 text-right font-bold border border-emerald-200">Saldo</th>
+                  <th class="p-2 text-center font-bold border border-emerald-200">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(t, idx) in accounting.transactions.filter(tr => tr.date === accounting.filterDate)" :key="t.id">
+                  <tr class="border-b border-emerald-100 hover:bg-emerald-50/50">
+                    <td class="p-2 border border-emerald-200 text-center" x-text="idx + 1"></td>
+                    <td class="p-2 border border-emerald-200" x-text="t.keterangan"></td>
+                    <td class="p-2 border border-emerald-200 text-right text-emerald-700" x-text="t.debet > 0 ? formatRupiah(t.debet) : '-'"></td>
+                    <td class="p-2 border border-emerald-200 text-right text-red-600" x-text="t.kredit > 0 ? formatRupiah(t.kredit) : '-'"></td>
+                    <td class="p-2 border border-emerald-200 text-right font-bold" :class="t.saldo >= 0 ? 'text-slate-900' : 'text-red-600'" x-text="formatRupiah(t.saldo)"></td>
+                    <td class="p-2 border border-emerald-200 text-center">
+                      <button @click="deleteTransaction(t.id)" class="text-red-500 hover:text-red-700 text-[10px]">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+                <tr x-show="accounting.transactions.filter(tr => tr.date === accounting.filterDate).length === 0">
+                  <td colspan="6" class="p-3 text-center text-[11px] text-emerald-600 italic">Belum ada transaksi hari ini</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Report Section -->
+          <div class="bg-white/60 rounded-lg p-3 border border-emerald-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <p class="text-[11px] font-bold text-emerald-900">Laporan</p>
+              <select x-model="accounting.reportMode" class="text-xs p-1.5 rounded border border-emerald-300 bg-white">
+                <option value="daily">Harian</option>
+                <option value="weekly">Mingguan</option>
+                <option value="monthly">Bulanan</option>
+              </select>
+            </div>
+            <div class="flex items-center space-x-2">
+              <label class="text-[10px] text-emerald-700">Tanggal:</label>
+              <input type="date" x-model="accounting.filterDate"
+                     class="text-xs p-1.5 rounded border border-emerald-300 bg-white">
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div class="bg-white rounded p-2 text-center">
+                <p class="text-[10px] text-slate-500">Total Debet</p>
+                <p class="font-bold text-emerald-700" x-text="formatRupiah(getReportSummary().totalDebet)"></p>
+              </div>
+              <div class="bg-white rounded p-2 text-center">
+                <p class="text-[10px] text-slate-500">Total Kredit</p>
+                <p class="font-bold text-red-600" x-text="formatRupiah(getReportSummary().totalKredit)"></p>
+              </div>
+              <div class="bg-white rounded p-2 text-center">
+                <p class="text-[10px] text-slate-500">Saldo Akhir</p>
+                <p class="font-bold text-slate-900" x-text="formatRupiah(getReportSummary().saldoAkhir)"></p>
+              </div>
+            </div>
+            <p class="text-[10px] text-emerald-600" x-text="'Jumlah transaksi: ' + getReportSummary().count"></p>
+          </div>
+
+          <!-- Export Button -->
+          <button @click="exportToExcel()"
+                  class="w-full py-2 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>Export ke Excel</span>
+          </button>
+        </div>
+
       </div>
+
+      <!-- Row 3: WA CS (1/2) + WA Marketing (1/2) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm" x-text="bonusList[1].title"></h3>
+            <p class="text-xs text-slate-500 mt-0.5" x-text="bonusList[1].guide"></p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
+            <template x-for="(field, fKey) in bonusList[1].fields" :key="fKey">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
+                <template x-if="field.options">
+                  <select x-model="field.value" class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                    <option value="" disabled selected>Pilih...</option>
+                    <template x-for="opt in field.options" :key="opt">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                </template>
+                <template x-if="!field.options">
+                  <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                         class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                </template>
+              </div>
+            </template>
+          </div>
+          <div class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto"
+               x-text="buildPrompt(bonusList[1])"></div>
+          <div class="flex space-x-2">
+            <button @click="handleCopyPrompt(bonusList[1], 1)"
+                    :class="copiedPromptIdx === 1 ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'"
+                    class="flex-1 px-4 py-2 text-white text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5">
+              <i :class="copiedPromptIdx === 1 ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
+              <span x-text="copiedPromptIdx === 1 ? 'Berhasil Disalin!' : 'Salin Prompt'"></span>
+            </button>
+            <button @click="resetFields(bonusList[1])"
+                    class="px-3 py-2 text-slate-600 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm" x-text="bonusList[2].title"></h3>
+            <p class="text-xs text-slate-500 mt-0.5" x-text="bonusList[2].guide"></p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-100">
+            <template x-for="(field, fKey) in bonusList[2].fields" :key="fKey">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1" x-text="field.label"></label>
+                <template x-if="field.options">
+                  <select x-model="field.value" class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                    <option value="" disabled selected>Pilih...</option>
+                    <template x-for="opt in field.options" :key="opt">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                </template>
+                <template x-if="!field.options">
+                  <input type="text" x-model="field.value" :placeholder="field.placeholder"
+                         class="w-full text-xs p-2 rounded border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+                </template>
+              </div>
+            </template>
+          </div>
+          <div class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto"
+               x-text="buildPrompt(bonusList[2])"></div>
+          <div class="flex space-x-2">
+            <button @click="handleCopyPrompt(bonusList[2], 2)"
+                    :class="copiedPromptIdx === 2 ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'"
+                    class="flex-1 px-4 py-2 text-white text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1.5">
+              <i :class="copiedPromptIdx === 2 ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
+              <span x-text="copiedPromptIdx === 2 ? 'Berhasil Disalin!' : 'Salin Prompt'"></span>
+            </button>
+            <button @click="resetFields(bonusList[2])"
+                    class="px-3 py-2 text-slate-600 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- TAB 3: PREMIUM -->
@@ -514,7 +697,7 @@
       </div>
 
       <!-- Tombol Bayar -->
-      <button @click="window.open('https://lynk.id/dgtaliz', '_blank'); trackEvent('premium_payment_clicked', {})"
+      <button @click="window.open('http://lynk.id/dgtaliz/8jw0o3j3x7en', '_blank'); trackEvent('premium_payment_clicked', {})"
               class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5">
         <i class="fa-solid fa-credit-card"></i>
         <span>Bayar Premium Sekarang</span>

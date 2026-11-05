@@ -9,6 +9,17 @@
         copiedPromptIdx: null,
         caraPakaiOpen: true,
 
+        // Accounting ledger state
+        accounting: {
+          transactions: [],
+          nextId: 1,
+          form: { keterangan: '', debet: '', kredit: '' },
+          filterDate: new Date().toISOString().split('T')[0],
+          reportMode: 'daily',
+          reportStart: '',
+          reportEnd: ''
+        },
+
         // KODE AKTIVASI RAHASIA KAMU (Bisa kamu ganti sendiri)
         SECRET_KEY: 'UMKM2026',
 
@@ -21,6 +32,8 @@
           if (localStorage.getItem('umkm_onboarded') === 'true') {
             this.caraPakaiOpen = false;
           }
+          // Load accounting data
+          this.loadAccounting();
         },
 
         switchTab(tab) {
@@ -404,6 +417,150 @@
           if (typeof gtag === 'function') {
             gtag('event', eventName, params);
           }
+        },
+
+        // --- Accounting methods ---
+        loadAccounting() {
+          try {
+            const data = localStorage.getItem('umkm_accounting');
+            if (data) {
+              const parsed = JSON.parse(data);
+              this.accounting.transactions = parsed.transactions || [];
+              this.accounting.nextId = parsed.nextId || 1;
+            }
+          } catch (e) {
+            console.error('Failed to load accounting data:', e);
+          }
+        },
+
+        saveAccounting() {
+          try {
+            localStorage.setItem('umkm_accounting', JSON.stringify({
+              transactions: this.accounting.transactions,
+              nextId: this.accounting.nextId
+            }));
+          } catch (e) {
+            console.error('Failed to save accounting data:', e);
+          }
+        },
+
+        addTransaction() {
+          const keterangan = this.accounting.form.keterangan.trim();
+          const debet = parseFloat(this.accounting.form.debet) || 0;
+          const kredit = parseFloat(this.accounting.form.kredit) || 0;
+
+          if (!keterangan) {
+            alert('Keterangan harus diisi');
+            return;
+          }
+          if (debet === 0 && kredit === 0) {
+            alert('Isi debet atau kredit');
+            return;
+          }
+
+          // Calculate saldo (running balance)
+          const lastSaldo = this.accounting.transactions.length > 0
+            ? this.accounting.transactions[this.accounting.transactions.length - 1].saldo
+            : 0;
+          const newSaldo = lastSaldo + debet - kredit;
+
+          this.accounting.transactions.push({
+            id: this.accounting.nextId++,
+            date: this.accounting.filterDate,
+            keterangan: keterangan,
+            debet: debet,
+            kredit: kredit,
+            saldo: newSaldo
+          });
+
+          this.accounting.form = { keterangan: '', debet: '', kredit: '' };
+          this.saveAccounting();
+        },
+
+        deleteTransaction(id) {
+          const idx = this.accounting.transactions.findIndex(t => t.id === id);
+          if (idx === -1) return;
+          this.accounting.transactions.splice(idx, 1);
+          // Recalculate all saldos
+          let saldo = 0;
+          this.accounting.transactions.forEach(t => {
+            saldo = saldo + t.debet - t.kredit;
+            t.saldo = saldo;
+          });
+          this.saveAccounting();
+        },
+
+        getFilteredTransactions() {
+          const mode = this.accounting.reportMode;
+          const now = new Date();
+          let startDate, endDate;
+
+          if (mode === 'daily') {
+            startDate = this.accounting.filterDate;
+            endDate = this.accounting.filterDate;
+          } else if (mode === 'weekly') {
+            const d = new Date(this.accounting.filterDate);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            const monday = new Date(d.setDate(diff));
+            startDate = monday.toISOString().split('T')[0];
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            endDate = sunday.toISOString().split('T')[0];
+          } else if (mode === 'monthly') {
+            const d = new Date(this.accounting.filterDate);
+            const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
+            const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+            startDate = firstDay.toISOString().split('T')[0];
+            endDate = lastDay.toISOString().split('T')[0];
+          }
+
+          return this.accounting.transactions.filter(t => t.date >= startDate && t.date <= endDate);
+        },
+
+        getReportSummary() {
+          const filtered = this.getFilteredTransactions();
+          let totalDebet = 0;
+          let totalKredit = 0;
+          filtered.forEach(t => {
+            totalDebet += t.debet;
+            totalKredit += t.kredit;
+          });
+          const saldoAkhir = filtered.length > 0 ? filtered[filtered.length - 1].saldo : 0;
+          return { totalDebet, totalKredit, saldoAkhir, count: filtered.length };
+        },
+
+        formatRupiah(num) {
+          return 'Rp ' + (num || 0).toLocaleString('id-ID');
+        },
+
+        exportToExcel() {
+          if (typeof XLSX === 'undefined') {
+            alert('Library Excel belum dimuat. Coba refresh halaman.');
+            return;
+          }
+          const filtered = this.getFilteredTransactions();
+          if (filtered.length === 0) {
+            alert('Tidak ada data untuk diexport');
+            return;
+          }
+
+          const wsData = [['No', 'Tanggal', 'Keterangan', 'Debet', 'Kredit', 'Saldo']];
+          filtered.forEach((t, idx) => {
+            wsData.push([idx + 1, t.date, t.keterangan, t.debet, t.kredit, t.saldo]);
+          });
+
+          // Add summary row
+          const summary = this.getReportSummary();
+          wsData.push([]);
+          wsData.push(['', '', 'TOTAL', summary.totalDebet, summary.totalKredit, summary.saldoAkhir]);
+
+          const ws = XLSX.utils.aoa_to_sheet(wsData);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'Catatan Keuangan');
+
+          const fileName = 'catatan-keuangan-' + new Date().toISOString().split('T')[0] + '.xlsx';
+          XLSX.writeFile(wb, fileName);
         },
 
         activateCode() {
